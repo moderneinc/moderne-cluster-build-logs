@@ -1,5 +1,45 @@
 ### Clustering build logs to analyse common build issues
 
+# Adding repos
+
+* before running, add repos in subfolder names `repos` inside the folder `ClusteringWithDocker`.
+* ensure `build.xlsx` is in the folder `repos`.
+
+Example folder set-up:
+```
+ClusteringWithDocker
+│
+├───scripts
+│       (4 files)
+│
+└───repos
+    │   builds.xlsx
+    │
+    ├───Org1
+    │   ├───Repo1
+    │   │   └───main
+    │   │           build.log
+    │   │
+    │   └───Repo2
+    │       └───master
+    │               build.log
+    │
+    ├───Org2
+    │   ├───Repo1
+    │   │   └───main
+    │   │           build.log
+    │   │
+    │   └───Repo2
+    │       └───master
+    │               build.log
+    │
+    └───Org3
+        └───Repo1
+            └───main
+                    build.log
+```
+
+
 # Docker
 
 * build the image using `docker build -t cluster_logs . `
