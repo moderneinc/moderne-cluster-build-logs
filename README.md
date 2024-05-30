@@ -5,7 +5,6 @@
 This project aims to analyse build logs from common build issues. By clustering these logs, you can identify common build issues and gain insight on which type of build error to prioritize. 
 
 
-
 ## How to run
 
 First, you must clone this repository. Then, you must decide on how you want to run the scripts, and follow the instructions in the appropriate readme as explained below.

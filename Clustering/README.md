@@ -8,15 +8,22 @@ Follow these steps to set up your project in a virtual environment.
 
 Make sure you have the following installed on your system:
 
-- Python 3.X
-- GCC (GNU Compiler Collection)
+- Python 3.X (using [brew](https://docs.brew.sh/Homebrew-and-Python) or the official [python](https://www.python.org/downloads/) installer)
+- GCC (GNU Compiler Collection) [(instructions)](#-install-gcc-by-running-these-commands)
 - Git
 
 ## Steps
 
 1. **Set up Python Virtual Environment**
+   
+   First verify you have the right version of python installed and check if output is `Python 3.X.X`
 
-   Create and activate a virtual environment.
+   ```bash
+   python --version
+   ```
+   
+
+   Then, create and activate a virtual environment.
 
    ```bash
    python -m venv venv
@@ -102,3 +109,14 @@ These commands should be executed one after the other in the specified order.
 ## Results
 
 Once you have ran the 4 scripts, you can open cluster_id_reason.html and analysis_build_failures.html in your browser.
+
+
+
+#### * Install GCC by running these commands
+
+```bash
+sudo apt-get update
+sudo apt-get install -y gcc
+sudo apt-get install -y gcc-11 g++-11
+export CXX=/usr/bin/g++-11
+sudo apt-get install -y build-essential```

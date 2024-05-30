@@ -42,6 +42,8 @@ ClusteringWithDocker
 
 # Docker
 
+Install docker by following the steps [here](https://docs.docker.com/engine/install/). Make sure your docker daemon is running by running `docker ps`. If it isn't, you will have to start it, as explained [here](https://docs.docker.com/config/daemon/start/).
+
 * build the image using `docker build -t cluster_logs . `
 * run the container using `docker run --rm -it --entrypoint bash cluster_logs`
 
