@@ -24,7 +24,7 @@ for cluster_id in tqdm(range(best_k)):
 
 
 df["common_reason_of_failure"] = [cluster_id_reason[int(fail)] for fail in df["kmeans_summary"]]
-df["kmeans_summary"] = pd.Categorical(df["kmeans_summary"], categories=[str(i) for i in range(best_k)], ordered=True) 
+df["kmeans_summary"] = pd.Categorical(df["kmeans_summary"].astype(str), categories=[str(i) for i in range(best_k)], ordered=True)
 
 # Create scatter plot
 fig = px.scatter(
