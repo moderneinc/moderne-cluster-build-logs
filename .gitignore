@@ -12,7 +12,11 @@ __pycache__/
 #Relevant to this project
 builds.xlsx
 repos/
-
+*.pkl
+*.csv
+*.html
+*.gguf
+llama.cpp/
 
 # Distribution / packaging
 .Python

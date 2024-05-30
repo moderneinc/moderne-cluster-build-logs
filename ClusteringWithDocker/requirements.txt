@@ -3,8 +3,8 @@ tqdm
 plotly
 scikit-learn
 numpy
-umap
+umap-learn
 requests
 openpyxl
 torch == 2.0.1
-transformers == 4.29.2
+transformers == 4.38.0

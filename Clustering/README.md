@@ -33,7 +33,7 @@ Make sure you have the following installed on your system:
 
 3. **Download and Set Up llama.cpp**
 
-   Clone the llama.cpp repository and build the project.
+   Clone the llama.cpp repository and build the project. You can follow the instruction on the [llama.cpp](https://github.com/ggerganov/llama.cpp) repository. Consider using their accelerations such as Metal for macOS and CUDA if you use a NVIDIA GPU.
 
    ```bash
    git clone https://github.com/ggerganov/llama.cpp
@@ -50,21 +50,6 @@ Make sure you have the following installed on your system:
    ```bash
    curl -L https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_M.gguf?download=true --output codellama.gguf
    ```
-
-7. **Activate Virtual Environment on Shell Start**
-
-   Add the virtual environment activation command to your shell's startup file.
-
-   ```bash
-   echo "source $(pwd)/venv/bin/activate" >> ~/.bashrc
-   source ~/.bashrc
-   ```
-
-Now you have your project set up in a virtual environment. You can start working on it by activating the virtual environment.
-
-```bash
-source venv/bin/activate
-```
 
 
 ## Start Server
@@ -91,22 +76,22 @@ To run the scripts in order, use the following commands in your terminal. Make s
 
 1. Load logs:
     ```bash
-    python 01.load_logs.py
+    python scripts/01.load_logs.py
     ```
 
 2. Generate summaries from logs (this step will take the longest time):
     ```bash
-    python 02.generate_summaries_from_logs.py
+    python scripts/02.generate_summaries_from_logs.py
     ```
 
 3. Embed summaries and cluster:
     ```bash
-    python 03.embed_summaries_and_cluster.py
+    python scripts/03.embed_summaries_and_cluster.py
     ```
 
 4. Cluster summaries results:
     ```bash
-    python 04.cluster_summaries_results.py
+    python scripts/04.cluster_summaries_results.py
     ```
 
 ---
