@@ -55,7 +55,7 @@ Make sure you have the following installed on your system:
 
 1. **Set up Python Virtual Environment**
    
-   First verify you have the right version of python installed and check if output is `Python 3.X.X`
+   First verify you have the right version of python installed and check if output is `Python 3.X.X`. If you used `brew` to install python, then replace all following `python` commands with `python3`.
 
    ```bash
    python --version
@@ -71,7 +71,7 @@ Make sure you have the following installed on your system:
 
 2. **Install Dependencies**
 
-   Make sure you have `pip` installed, then install the required Python packages.
+   Make sure you have `pip` installed, then install the required Python packages. If you used `brew` to install python, then replace the following `pip` command with `pip3`.
 
    ```bash
    pip install -r requirements.txt
@@ -142,7 +142,7 @@ Copy the logs and the build.xlsx into the folder named "repos".
 
 ### Running the scripts
 
-To run the scripts in order, use the following commands in your terminal. Make sure you are in the root folder of the project:
+To run the scripts in order, use the following commands in your terminal. If you used `brew` to install python, then replace all following `python` commands with `python3`. Make sure you are in the root folder of the project:
 
 1. Load logs:
     ```bash
@@ -177,9 +177,15 @@ Once you have ran the 4 scripts, you can open cluster_id_reason.html and analysi
 
 #### * Install GCC by running these commands
 
+#### On Linux: 
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y gcc
 sudo apt-get install -y gcc-11 g++-11
 export CXX=/usr/bin/g++-11
-sudo apt-get install -y build-essential```
+sudo apt-get install -y build-essential
+```
+
+#### On Mac or Windows:
+You can follow the instruction [here](https://gcc.gnu.org/install/binaries.html). For Mac, we recommend to use homebrew.
