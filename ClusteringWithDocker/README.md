@@ -73,7 +73,7 @@ This command will list all running containers along with their IDs and names.
 
 ### Copy files
 
-Use the docker cp command: Once you have the container ID or name, you can use the docker cp command to copy the file from the container to your host machine. The syntax is:
+Once you have the container ID or name, you can use the docker cp command to copy the file from the container to your host machine. The syntax is:
 
 ```bash
 docker cp <container_id_or_name>:<path_inside_container> <path_on_host>
