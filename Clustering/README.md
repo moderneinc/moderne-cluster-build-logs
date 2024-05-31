@@ -119,18 +119,18 @@ You can get the process id by running. It will be marked under "server" in the t
 lsof -i :8080
 ```
 
-to then kill the process, use: 
+to then kill the process, replace `<PID>` with the process id, and run: 
 ```bash
-kill -9 PID
+kill -9 <PID>
 ```
 
 #### For Windows:
 ```bash
 netstat -ano | findstr :8080
 ```
-to then kill the process, use:
+to then kill the process, replace `<PID>` with the process id, and run:
 ```bash 
-taskkill /PID PID /F
+taskkill /PID <PID> /F
 ```
 
 
