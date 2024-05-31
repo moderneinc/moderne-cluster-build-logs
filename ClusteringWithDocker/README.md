@@ -49,7 +49,7 @@ Install docker by following the steps [here](https://docs.docker.com/engine/inst
 
 # Start LLM server
 
-Run in the terminal `nohup ./server -m "codellama.gguf" -c 8000 --port "8080" &` 
+Run in the terminal `nohup llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080" &` 
 `nohup` and `&` keeps the process running in the background, although I recommend running the process in the foreground first to make sure it is set up correctly, and then stopping using `Ctrl+C` and starting it again with `nohup` and `&`. You might need to enter `enter` after running `nohup` to be able to keep running other commands.
 
 
