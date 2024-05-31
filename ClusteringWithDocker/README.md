@@ -59,3 +59,31 @@ Run in order in the terminal
 * `python 02.generate_summaries_from_logs.py` // this step will take the longest time
 * `python 03.embed_summaries_and_cluster.py`
 * `python 04.cluster_summaries_results.py`
+
+
+# Open Results
+
+### Get docker ID
+Open a new terminal and run:
+```bash
+docker ps
+```
+
+This command will list all running containers along with their IDs and names.
+
+### Copy files
+
+Use the docker cp command: Once you have the container ID or name, you can use the docker cp command to copy the file from the container to your host machine. The syntax is:
+
+```bash
+docker cp <container_id_or_name>:<path_inside_container> <path_on_host>
+```
+
+For example, to copy the files `cluster_id_reason.html` and `analysis_build_failures.html` from the container to the host machine, you can run:
+
+```bash
+docker cp <container_id_or_name>:/cluster_id_reason.html .
+docker cp <container_id_or_name>:/analysis_build_failures.html .
+```
+
+You can now open the files in your browser on your local machine.
