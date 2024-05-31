@@ -1,5 +1,44 @@
 Here's a README with the steps to set up a virtual environment and configure the project without using Docker.
 
+# Adding repos
+
+* before running, add repos in subfolder names `repos` inside the folder `Clustering`.
+* ensure `build.xlsx` is in the folder `repos`.
+
+Example folder set-up:
+```
+Clustering
+│
+├───scripts
+│       (4 files)
+│
+└───repos
+    │   builds.xlsx
+    │
+    ├───Org1
+    │   ├───Repo1
+    │   │   └───main
+    │   │           build.log
+    │   │
+    │   └───Repo2
+    │       └───master
+    │               build.log
+    │
+    ├───Org2
+    │   ├───Repo1
+    │   │   └───main
+    │   │           build.log
+    │   │
+    │   └───Repo2
+    │       └───master
+    │               build.log
+    │
+    └───Org3
+        └───Repo1
+            └───main
+                    build.log
+```
+
 # Project Setup Instructions
 
 Follow these steps to set up your project in a virtual environment.
