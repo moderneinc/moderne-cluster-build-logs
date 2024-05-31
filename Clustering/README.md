@@ -109,6 +109,30 @@ nohup llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080" &
 
 You can modify the path to server pased on where you install llama.cpp. You can also modify the path to the model you've downloaded.
 
+### Killing the server after clustering is done
+
+Since the server is running in the background, you can't use Ctrl+C to stop it. You'll need to go find the process ID to then kill it. 
+You can get the process id by running. It will be marked under "server" in the terminal output:
+
+#### For Mac or Linux:
+```bash
+lsof -i :8080
+```
+
+to then kill the process, use: 
+```bash
+kill -9 PID
+```
+
+#### For Windows:
+```bash
+netstat -ano | findstr :8080
+```
+to then kill the process, use:
+```bash 
+taskkill /PID PID /F
+```
+
 
 ## Running the scripts
 

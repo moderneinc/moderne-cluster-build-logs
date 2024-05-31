@@ -54,8 +54,8 @@ Run in the terminal `nohup ./server -m "codellama.gguf" -c 8000 --port "8080" &`
 
 
 # Run clustering
-Run in order
-01.load_logs.py
-02.generate_summaries_from_logs.py // this step will take the longest time
-03.embed_summaries_and_cluster.py
-04.cluster_summaries_results.py
+Run in order in the terminal 
+* `python 01.load_logs.py`
+* `python 02.generate_summaries_from_logs.py` // this step will take the longest time
+* `python 03.embed_summaries_and_cluster.py`
+* `python 04.cluster_summaries_results.py`
