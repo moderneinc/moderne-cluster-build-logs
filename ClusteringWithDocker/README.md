@@ -82,8 +82,8 @@ docker cp <container_id_or_name>:<path_inside_container> <path_on_host>
 For example, to copy the files `cluster_id_reason.html` and `analysis_build_failures.html` from the container to the host machine, you can run:
 
 ```bash
-docker cp <container_id_or_name>:/cluster_id_reason.html .
-docker cp <container_id_or_name>:/analysis_build_failures.html .
+docker cp <container_id_or_name>:/app/cluster_id_reason.html .
+docker cp <container_id_or_name>:/app/analysis_build_failures.html .
 ```
 
 You can now open the files in your browser on your local machine.
