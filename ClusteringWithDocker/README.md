@@ -1,11 +1,26 @@
-### Clustering build logs to analyse common build issues
+# Creating clusters with Docker
 
-# Adding repos
+## Prerequisites
 
-* before running, add repos in subfolder names `repos` inside the folder `ClusteringWithDocker`.
-* ensure `build.xlsx` is in the folder `repos`.
+Please ensure that you have [Docker](https://docs.docker.com/) installed on your machine. We recommend that you use [Docker Desktop](https://docs.docker.com/get-docker/) – but you are also welcome to install just the [Docker engine itself](https://docs.docker.com/engine/install/).
 
-Example folder set-up:
+## Instructions
+
+### Step 1: Clone this project
+
+```shell
+git clone git@github.com:moderneinc/moderne-cluster-build-logs.git
+cd moderne-cluster-build-logs/ClusteringWithDocker
+```
+
+### Step 2: Gather the build logs
+
+In order to perform an analysis on your build logs, all of them need to be copied over to this directory (`ClusteringWithDocker`). Please ensure that they are copied over inside a folder named `repos`. 
+
+You will also need a `build.xlsx` file that provides details about the builds such as where the build logs are located, what the outcome was, and what the path to the project is. This file should exist inside of `repos` directory.
+
+Here is an example of what your directory should be look like if everything was set up correctly:
+
 ```
 ClusteringWithDocker
 │
@@ -39,51 +54,91 @@ ClusteringWithDocker
                     build.log
 ```
 
+### Step 3: Confirm Docker is running
 
-# Docker
+From your command line, run the following command:
 
-Install docker by following the steps [here](https://docs.docker.com/engine/install/). Make sure your docker daemon is running by running `docker ps`. If it isn't, you will have to start it, as explained [here](https://docs.docker.com/config/daemon/start/).
-
-* build the image using `docker build -t cluster_logs . `
-* run the container using `docker run --rm -it --entrypoint bash cluster_logs`
-
-# Start LLM server
-
-Run in the terminal `nohup llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080" &` 
-`nohup` and `&` keeps the process running in the background, although I recommend running the process in the foreground first to make sure it is set up correctly, and then stopping using `Ctrl+C` and starting it again with `nohup` and `&`. You might need to enter `enter` after running `nohup` to be able to keep running other commands.
-
-
-# Run clustering
-Run in order in the terminal 
-* `python 01.load_logs.py`
-* `python 02.generate_summaries_from_logs.py` // this step will take the longest time
-* `python 03.embed_summaries_and_cluster.py`
-* `python 04.cluster_summaries_results.py`
-
-
-# Open Results
-
-### Get docker ID
-Open a new terminal and run:
 ```bash
 docker ps
 ```
 
-This command will list all running containers along with their IDs and names.
+You should see: `CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES`. 
 
-### Copy files
+If you don't, please ensure that [you've started up the Docker daemon correctly](https://docs.docker.com/config/daemon/start/).
 
-Once you have the container ID or name, you can use the docker cp command to copy the file from the container to your host machine. The syntax is:
+### Step 4: Build the image and run the Docker container
+
+Build the image by running the following command:
 
 ```bash
-docker cp <container_id_or_name>:<path_inside_container> <path_on_host>
+docker build -t cluster_logs .
 ```
 
-For example, to copy the files `cluster_id_reason.html` and `analysis_build_failures.html` from the container to the host machine, you can run:
+Then run the container:
+
+```bash
+docker run --rm -it --entrypoint bash cluster_logs
+```
+
+You should now be in a virtual environment inside of the Docker container.
+
+### Step 4: Start the Llama server
+
+From your virtual environment, start up the Llama server by running the following command:
+
+```bash
+nohup llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080" &
+```
+
+You may notice that `nohup: ignoring input...` may appear on your command line. That is safe to ignore. Just press `enter` to get to a blank command line.
+
+### Step 5: Run the scripts
+
+_Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `ClusteringWithDocker` directory you're working out of._
+
+Run the following scripts in order:
+
+1. Load the logs:
+
+```bash
+python 01.load_logs.py
+```
+
+2. Generate summaries from logs (this step can take **significant amount of time** – if you want to get summaries faster, consider following the [non-Docker clustering instructions](../Clustering/README.md)):
+    
+```bash
+python 02.generate_summaries_from_logs.py
+```
+
+3. Embed summaries and cluster:
+
+```bash
+python 03.embed_summaries_and_cluster.py
+```
+
+4. Cluster summaries results:
+
+```bash
+python 04.cluster_summaries_results.py
+```
+
+### Step 6: Get the results
+
+In a new terminal window, run the following command:
+
+```bash
+docker ps
+```
+
+This will list all of the containers running along with their IDs and names. Figure out which container ID/name corresponds to this clustering repository and then run the following commands to copy the necessary files from the container to your host machine:
 
 ```bash
 docker cp <container_id_or_name>:/app/cluster_id_reason.html .
 docker cp <container_id_or_name>:/app/analysis_build_failures.html .
 ```
 
-You can now open the files in your browser on your local machine.
+You can then open those HTML files in the browser of your choice to get detailed information about your build failures.
+
+### Step 7: Cleanup
+
+Once you've obtained the reports, feel free to turn off Docker and stop the container. If you're using Docker desktop, this is as simple as quitting the application. Otherwise, you can use the [docker stop command](https://docs.docker.com/reference/cli/docker/container/stop/) and then the [docker rm command](https://docs.docker.com/reference/cli/docker/container/rm/).
