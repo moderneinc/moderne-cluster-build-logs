@@ -8,14 +8,15 @@ import pickle
 df = pd.read_pickle("df_with_logs.pkl")
 
 # Initialize prompt
-beg_prompt = "[INST] Summarize this build log in 100 words, focusing on the errors and the reasons for failure. Do not mention the name of the repository. The log is: "
-end_prompt = "[/INST] The build failed"
+beg_prompt = "Instruct: Summarize this build log in 50 words, focusing on the errors and the reasons for failure. Do not mention the name of the repository. The log is: "
+end_prompt = "Output: The build failed because "
 
 summaries = []
 responses = []
 
 # Generate summaries
 for log in tqdm(df["logs"]):   
+    log = log[:4*1800] # truncate if log is too long
     prompt = beg_prompt + "\n" + log + "\n" + end_prompt
     data = {"stream": False, "n_predict": 100, "prompt": prompt}
     url = 'http://localhost:8080/completion'
