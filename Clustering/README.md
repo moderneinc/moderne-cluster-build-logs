@@ -4,9 +4,9 @@
 
 Please ensure you have the following tools installed on your system:
 
-* Python 3.10
-    * [Homebrew installation]([https://docs.brew.sh/Homebrew-and-Python](https://formulae.brew.sh/formula/python@3.10)) 
-    * [Official Python installer]([https://www.python.org/downloads/](https://www.python.org/downloads/release/python-31014/))
+* Python 3.10 (newer versions will not work)
+    * [Homebrew installation](https://formulae.brew.sh/formula/python@3.10) 
+    * [Official Python installer](https://www.python.org/downloads/release/python-31014/)
 * GCC (GNU Compiler Collection)
     * [Homebrew installation](https://formulae.brew.sh/formula/gcc)
     * [GCC Binaries](https://gcc.gnu.org/install/binaries.html)
@@ -92,7 +92,7 @@ After running the `source` command, you should see that you're in a Python virtu
 
 ### Step 5: Install dependencies
 
-Double-check that `pip` is pointing to the correct Python version by running the following command. The output should include `python 3.X`. If it doesn't, try using `pip3` instead.
+Double-check that `pip` is pointing to the correct Python version by running the following command. The output should include `python 3.10.X`. If it doesn't, try using `pip3` instead.
 
 ```bash
 pip --version
