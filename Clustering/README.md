@@ -77,7 +77,9 @@ python3 --version
 You will be creating a server and running clustering inside of a Python virtual environment. To create said environment, please run:
 
 ```bash
+## Pick the one that applies to your system
 python -m venv venv
+python3 -m venv venv 
 
 ## For Mac or Linux users
 source venv/bin/activate
