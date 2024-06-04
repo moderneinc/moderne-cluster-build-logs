@@ -1,11 +1,35 @@
-Here's a README with the steps to set up a virtual environment and configure the project without using Docker.
+# Creating clusters without Docker
 
-# Adding repos
+## Prerequisites
 
-* before running, add repos in subfolder names `repos` inside the folder `Clustering`.
-* ensure `build.xlsx` is in the folder `repos`.
+Please ensure you have the following tools installed on your system:
 
-Example folder set-up:
+* Python 3.X 
+    * [Homebrew installation](https://docs.brew.sh/Homebrew-and-Python) 
+    * [Official Python installer](https://www.python.org/downloads/)
+* GCC (GNU Compiler Collection)
+    * [Homebrew installation](https://formulae.brew.sh/formula/gcc)
+    * [GCC Binaries](https://gcc.gnu.org/install/binaries.html)
+    * Linux systems should come with this pre-installed. If not, try running `sudo apt-get install gcc` (for Debian based distributions) or `sudo yum install gcc` (for RPM based distributions).
+* [Git](https://git-scm.com/downloads)
+
+## Instructions
+
+### Step 1: Clone this project
+
+```shell
+git clone git@github.com:moderneinc/moderne-cluster-build-logs.git
+cd moderne-cluster-build-logs/Clustering
+```
+
+### Step 2: Gather build logs
+
+In order to perform an analysis on your build logs, all of them need to be copied over to this directory (`Clustering`). Please ensure that they are copied over inside a folder named `repos`. 
+
+You will also need a `build.xlsx` file that provides details about the builds such as where the build logs are located, what the outcome was, and what the path to the project is. This file should exist inside of `repos` directory.
+
+Here is an example of what your directory should be look like if everything was set up correctly:
+
 ```
 Clustering
 │
@@ -39,153 +63,154 @@ Clustering
                     build.log
 ```
 
-# Project Setup Instructions
+### Step 3: Confirm that you have the right version of Python
 
-Follow these steps to set up your project in a virtual environment.
+Depending on your operating system and how you've installed Python, you will run Python in the terminal by typing `python` or `python3`. Please ensure that the output from one of the following commands returns `Python 3.X.X`. **You will then use that command to run the rest of the Python commands in this repository**. 
 
-## Prerequisites
+```bash
+python --version
+python3 --version
+```
 
-Make sure you have the following installed on your system:
+### Step 4: Set up the Python virtual environment
 
-- Python 3.X (using [brew](https://docs.brew.sh/Homebrew-and-Python) or the official [python](https://www.python.org/downloads/) installer)
-- GCC (GNU Compiler Collection) [(instructions)](#-install-gcc-by-running-these-commands)
-- Git
+You will be creating a server and running clustering inside of a Python virtual environment. To create said environment, please run:
 
-## Steps
+```bash
+python -m venv venv
 
-1. **Set up Python Virtual Environment**
-   
-   First verify you have the right version of python installed and check if output is `Python 3.X.X`. If you used `brew` to install python, then replace all following `python` commands with `python3`.
+## For Mac or Linux users
+source venv/bin/activate
 
-   ```bash
-   python --version
-   ```
-   
+## For Windows users
+source venv\Scripts\activate
+```
 
-   Then, create and activate a virtual environment.
+After running the `source` command, you should see that you're in a Python virtual environment.
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
+### Step 5: Install dependencies
 
-2. **Install Dependencies**
+Double-check that `pip` is pointing to the correct Python version by running the following command. The output should include `python 3.X`. If it doesn't, try using `pip3` instead.
 
-   Make sure you have `pip` installed, then install the required Python packages. If you used `brew` to install python, then replace the following `pip` command with `pip3`.
+```bash
+pip --version
+```
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+Once you've confirmed which `pip` works for you, install dependencies by running the following command:
 
-3. **Download and Set Up llama.cpp**
+```bash
+pip install -r requirements.txt
+```
 
-   Clone the llama.cpp repository and build the project. You can follow the instruction on the [llama.cpp](https://github.com/ggerganov/llama.cpp) repository. Consider using their accelerations such as Metal for macOS and CUDA if you use a NVIDIA GPU.
+If you can't find `requirements.txt`, please ensure that you're in the `Clustering` directory.
 
-   ```bash
-   git clone https://github.com/ggerganov/llama.cpp
-   cd llama.cpp
-   make
-   cd ..
-   ```
+### Step 6: Download and set up Llama
 
+Clone the [llama.cpp repository](https://github.com/ggerganov/llama.cpp) and `cd` into the directory:
 
-6. **Download CodeLlama Model**
+```bash
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+```
 
-   Download the CodeLlama model.
+Follow the [instructions in their repository to build llama](https://github.com/ggerganov/llama.cpp?tab=readme-ov-file#build). You may wish to customize hardware acceleration depending on your OS and hardware.
 
-   ```bash
-   curl -L https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_M.gguf?download=true --output codellama.gguf
-   ```
+Once you've run the `make` command inside of your clone, `cd` back to the `Clustering` directory:
 
+```bash
+make
+cd ..
+```
 
-## Start Server
+### Step 7: Download the CodeLlama model
 
+You will use the CodeLlama model to analyze your code. Download the model by running:
 
-Run in the terminal 
+```bash
+curl -L https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_M.gguf?download=true --output codellama.gguf
+```
+
+### Step 8: Start the server
+
+You will need to start up the llama server before you can run the scripts to analyze your code. We'd recommend you start by running the following command and then interrupting it if it started successfully (typically via `ctrl + c`):
+
+```bash
+# Abort after confirming it works
+llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080"
+```
+
+Once you've confirmed it worked correctly, we'd encourage you to use [nohup](https://en.wikipedia.org/wiki/Nohup) to keep the server running in the background:
+
 ```bash
 nohup llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080" &
 ```
-`nohup` and `&` keeps the process running in the background, although I recommend running the process in the foreground first to make sure it is set up correctly, and then stopping using `Ctrl+C` and starting it again with `nohup` and `&`. You might need to enter `enter` to after running `nohup` to be able to keep running other commands.
 
-You can modify the path to server pased on where you install llama.cpp. You can also modify the path to the model you've downloaded.
+This will return a process ID that you can later kill when you're done analyzing your builds. For more information on how to kill the server or how to get the process ID at a later time, please see the [additional server information section](#additional-server-information)
 
-### Killing the server after clustering is done
+Please note that you can modify the server startup command to meet your needs – such as changing the path to the server or the path to the model.
 
-Since the server is running in the background, you can't use Ctrl+C to stop it. You'll need to go find the process ID to then kill it. 
-You can get the process id by running. It will be marked under "server" in the terminal output:
+### Step 9: Run the scripts
 
-#### For Mac or Linux:
+_Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `Clustering` directory you're working out of._
+
+Run the following scripts in order:
+
+1. Load the logs:
+
+```bash
+python scripts/01.load_logs.py
+```
+
+2. Generate summaries from logs (this step can take a bit of time depending on how many repositories you're analyzing):
+    
+```bash
+python scripts/02.generate_summaries_from_logs.py
+```
+
+3. Embed summaries and cluster:
+
+```bash
+python scripts/03.embed_summaries_and_cluster.py
+```
+
+4. Cluster summaries results:
+
+```bash
+python scripts/04.cluster_summaries_results.py
+```
+
+### Step 10: Analyze the results
+
+Once you've run the four scripts, you should find that a `cluster_id_reason.html` and `analysis_build_failures.html` file was produced. Open those in the browser of your choice to get detailed information about your build failures.
+
+Success! You can now freely exit out of the Python virtual environment by typing `exit` into the command line. You should also [turn off the llama server](#additional-server-information).
+
+## Additional server information
+
+If you've started the server using `nohup`, you can look for the process ID by running one of the following commands:
+
+**For Mac or Linux users:**
+
 ```bash
 lsof -i :8080
 ```
 
-to then kill the process, replace `<PID>` with the process id, and run: 
+**Windows users:**
+
+```bash
+netstat -ano | findstr :8080
+```
+
+These commands will return a process ID that you can then use to kill the server by running one of the following commands (replacing `<PID>` with the process ID returned from the above command):
+
+**For Mac or Linux users:**
+
 ```bash
 kill -9 <PID>
 ```
 
-#### For Windows:
+**Windows users:**
+
 ```bash
-netstat -ano | findstr :8080
-```
-to then kill the process, replace `<PID>` with the process id, and run:
-```bash 
 taskkill /PID <PID> /F
 ```
-
-
-## Running the scripts
-
-### Adding the logs
-
-Copy the logs and the build.xlsx into the folder named "repos".
-
-### Running the scripts
-
-To run the scripts in order, use the following commands in your terminal. If you used `brew` to install python, then replace all following `python` commands with `python3`. Make sure you are in the root folder of the project:
-
-1. Load logs:
-    ```bash
-    python scripts/01.load_logs.py
-    ```
-
-2. Generate summaries from logs (this step will take the longest time):
-    ```bash
-    python scripts/02.generate_summaries_from_logs.py
-    ```
-
-3. Embed summaries and cluster:
-    ```bash
-    python scripts/03.embed_summaries_and_cluster.py
-    ```
-
-4. Cluster summaries results:
-    ```bash
-    python scripts/04.cluster_summaries_results.py
-    ```
-
----
-
-These commands should be executed one after the other in the specified order.
-
-
-## Results
-
-Once you have ran the 4 scripts, you can open cluster_id_reason.html and analysis_build_failures.html in your browser.
-
-
-
-#### * Install GCC by running these commands
-
-#### On Linux: 
-
-```bash
-sudo apt-get update
-sudo apt-get install -y gcc
-sudo apt-get install -y gcc-11 g++-11
-export CXX=/usr/bin/g++-11
-sudo apt-get install -y build-essential
-```
-
-#### On Mac or Windows:
-You can follow the instruction [here](https://gcc.gnu.org/install/binaries.html). For Mac, we recommend to use homebrew.

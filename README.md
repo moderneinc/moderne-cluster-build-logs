@@ -1,30 +1,39 @@
-# Clustering build logs to analyse common build issues
+# Clustering build logs to analyze common build issues
 
-## Goal
+When your company attempts to build [Lossless Semantic Trees (LSTs)](https://docs.moderne.io/administrator-documentation/moderne-platform/references/concepts/lossless-semantic-trees) for all of your repositories, you may find that some of them do not build successfully. While you _could_ go through each of those by hand and attempt to figure out common patterns, there is a better way: [cluster analysis](https://en.wikipedia.org/wiki/Cluster_analysis).
 
-This project aims to analyse build logs from common build issues. By clustering these logs, you can identify common build issues and gain insight on which type of build error to prioritize. 
+You can think of cluster analysis as a way of grouping data into easily identifiable chunks. In other words, it can take in all of your build failures and then find what issues are the most common – so you can prioritize what to fix first.
 
+This repository will walk you through everything you need to do to perform a cluster analysis on your build failures. By the end, you will have produced two HTML files – [one that visually displays the clusters](#analysis_build_failureshtml) and [one that contains a list of the common errors](#cluster_id_reasonhtml). 
 
-## How to run
+## Instructions
 
-First, you must clone this repository. Then, you must decide on how you want to run the scripts, and follow the instructions in the appropriate readme as explained below.
+### Step 1: Determine how you will run this project
 
-### With Docker
+This project offers two options for performing cluster analysis:
 
-You can build and run the clustering using docker. However, this can lead to much slower latency, due to the docker not being able to use the accelerations of Metal on Mac. You can follow the instructions in the [README](/ClusteringWithDocker/README.md) in the folder `ClusteringWithDocker` but first make sure to `cd` into the folder.
+1. (**Recommended**) Install a few tools (such as Python and GCC) on your local machine and then use them to generate the clusters. 
+2. Generate the clusters inside a Docker container.
 
-### Without Docker
+The first option will be **significantly** faster as it can take advantage of hardware acceleration (such as Metal on Macs). If you have restrictions on what you can install on your machine, we do offer the Docker option, though.
 
-You can run the same analysis without docker, by following the [README](/Clustering/README.md) instructions in the folder `Clustering`, but first make sure to `cd` into the folder.
+### Step 2: Follow the instructions for the path of your choice
 
-## Expected result
+* (**Recommended**) [Instructions for installing tools on your local machine](/Clustering/README.md)
+* [Instructions for using Docker](/ClusteringWithDocker/README.md)
 
-Once you have run the scripts, you will be able to open, using your browser, the results files: analysis_build_failures.html and cluster_id_reason.html. This is an example of the images what you can expect to see. 
+## Example results
 
-#### analysis_build_failures.html
+Below you can see some examples of the HTML files produced by following the above steps.
+
+### analysis_build_failures.html
+
+This file is a visual representation of the build failure clusters. Clusters that contain the most number of dots should generally be prioritized over ones that contain fewer dots.
 
 ![analysis_build_failures.html](images/expected_analysis_build_failures.png)
 
 #### cluster_id_reason.html
+
+This file gives you more details into the clusters and the common reasons why your builds are failing.
 
 ![cluster_id_reason.html](images/expected_cluster_id_reason.png)
