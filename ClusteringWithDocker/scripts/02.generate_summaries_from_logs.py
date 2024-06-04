@@ -27,5 +27,5 @@ for log in tqdm(df["logs"]):
 
 # Save summaries
 df["Summaries"] = summaries
-
+df.to_pickle("df_with_summaries.pkl")
 pickle.dump(summaries, open("summaries.pkl", "wb"))
