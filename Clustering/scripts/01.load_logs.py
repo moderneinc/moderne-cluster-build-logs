@@ -17,6 +17,4 @@ for logpath in df["Build Log"]:
 # Save logs
 df["logs"] = logs
 
-#TODO: remove sampling after testing
-df = df.sample(frac=0.01).reset_index(drop=True)
 df.to_pickle("df_with_logs.pkl")
