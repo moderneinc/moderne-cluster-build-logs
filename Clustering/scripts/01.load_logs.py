@@ -6,6 +6,9 @@ df = pd.read_excel("repos/builds.xlsx")
 
 # Only keep the logs of the failures
 df = df[df["Outcome"] == "Failure"]
+print(len(df))
+df = pd.concat([df.dropna(subset=["Maven Version"]), df.dropna(subset=["Gradle Version"])])
+print(len(df))
 
 # Extract logs
 logs = []
@@ -17,6 +20,4 @@ for logpath in df["Build Log"]:
 # Save logs
 df["logs"] = logs
 
-#TODO: remove sampling after testing
-df = df.sample(frac=0.01).reset_index(drop=True)
 df.to_pickle("df_with_logs.pkl")
