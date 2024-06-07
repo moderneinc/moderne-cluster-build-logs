@@ -6,7 +6,7 @@ def extract_stacktrace_maven(row):
     log = row["logs"]
     patterns = [
     re.compile(r"(\[INFO\] BUILD FAILURE.*?Re-run Maven using the -X switch to enable full debug logging\.)", re.DOTALL),
-    re.compile(r"(BUILD FAILED with an exception:.*?)", re.DOTALL)
+    re.compile(r"(BUILD FAILED with an exception:.*)", re.DOTALL)
     ]
 
     matches = []
@@ -27,7 +27,7 @@ def remove_lines_stacktrace_maven(log):
     lines_to_keep = []
     start_removing = True
     for line in log.split("\n"):
-        if "[INFO] BUILD FAILURE" in line or "Caused by:" in line or  "BUILD FAILED with an exception" in line:
+        if "[INFO] BUILD FAILURE" in line or "Caused by:" in line or "BUILD FAILED with an exception" in line:
             start_removing = False
         elif "at org.apache.maven.plugin.DefaultMojosExecutionStrategy" in line:
             start_removing = True
@@ -44,7 +44,7 @@ def extract_stacktrace_gradle(row):
     patterns = [
         re.compile(r"(\* Exception is:.*?\* Get more help at https://help\.gradle\.org)", re.DOTALL),
         re.compile(r"(\* Exception is:.*?BUILD FAILED in)", re.DOTALL),
-        re.compile(r"(BUILD FAILED with an exception:.*?)", re.DOTALL)
+        re.compile(r"(BUILD FAILED with an exception:.*)", re.DOTALL)
     ]
 
     matches = []
@@ -101,5 +101,5 @@ if __name__ == "__main__":
 
 
     # Save summaries
-    df["Summaries"] = extract_stacktraces
+    df["Extracted logs"] = extract_stacktraces
     df.to_pickle("df_with_summaries.pkl")
