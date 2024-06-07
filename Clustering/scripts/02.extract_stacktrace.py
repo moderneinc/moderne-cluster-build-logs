@@ -29,7 +29,9 @@ def remove_lines_stacktrace_maven(log):
     for line in log.split("\n"):
         if "[INFO] BUILD FAILURE" in line or "Caused by:" in line or "BUILD FAILED with an exception" in line:
             start_removing = False
-        elif "at org.apache.maven.plugin.DefaultMojosExecutionStrategy" in line:
+        elif ("at org.apache.maven.plugin.DefaultMojosExecutionStrategy" in line 
+              or "at org.apache.maven.lifecycle.internal.LifecycleDependencyResolver" in line 
+              or "at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute" in line) :
             start_removing = True
         if not start_removing:
             lines_to_keep.append(line)
@@ -68,7 +70,9 @@ def remove_lines_stacktrace_gradle(log):
     for line in log.split("\n"):
         if "* Exception is" in line or "Caused by: " in line or "BUILD FAILED with an exception" in line:
             start_removing = False
-        elif "at org.gradle.api.internal" in line:
+        elif ("at org.gradle.api.internal" in line
+              or "at org.gradle.process.internal.DefaultExecHandle" in line
+              or "at org.gradle.internal.DefaultBuildOperationRunner" in line):
             start_removing = True
         if not start_removing:
             lines_to_keep.append(line)

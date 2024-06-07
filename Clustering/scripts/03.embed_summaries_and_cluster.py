@@ -26,15 +26,15 @@ def get_embedding(input_string):
 df = pd.read_pickle("df_with_summaries.pkl")
 
 # Embed summaries
-embds_summaries = [get_embedding(summary) for summary in tqdm(df["Summaries"])]
+embds_summaries = [get_embedding(summary) for summary in tqdm(df["Extracted logs"])]
 df["embds_summaries"] = embds_summaries
 
 # Perform clustering
 best_silhouette_score = -100
-kmax = 2 # change back to 15
+kmax = 15 # change back to 15
 best_k = -1
 
-for k in range(2, kmax + 1):
+for k in range(3, kmax + 1):
     kmeans = KMeans(n_clusters=k, random_state=0, n_init=10).fit_predict(embds_summaries)
     labels = kmeans
     score = silhouette_score(embds_summaries, labels, metric="euclidean")

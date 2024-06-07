@@ -13,7 +13,7 @@ cluster_id_reason = {}
 best_k = df["kmeans_summary"].nunique()
 
 for cluster_id in tqdm(range(best_k)):
-    all_summaries = "\n".join(df[df["kmeans_summary"] == cluster_id]["Summaries"])
+    all_summaries = "\n".join(df[df["kmeans_summary"] == cluster_id]["Extracted logs"])
     prompt = "[INST] Provide a short summary for the common reason for each of the following failures: " + all_summaries + "\n[/INST] Sure, here's a 5 words summary: \""
     data = {"stream": False, "n_predict": 35, "prompt": prompt}
     url = 'http://localhost:8080/completion'
@@ -23,9 +23,11 @@ for cluster_id in tqdm(range(best_k)):
     cluster_id_reason[cluster_id] = content
 
 
+
 df["common_reason_of_failure"] = [cluster_id_reason[int(fail)] for fail in df["kmeans_summary"]]
 df["kmeans_summary"] = pd.Categorical(df["kmeans_summary"].astype(str), categories=[str(i) for i in range(best_k)], ordered=True)
 
+df["build"] = ["maven" if not pd.isna(row) else "gradle" for row in df["Maven Version"]]
 # Create scatter plot
 fig = px.scatter(
     df,
@@ -33,8 +35,10 @@ fig = px.scatter(
     y="y",
     log_x=False,
     hover_name="Path",
+    symbol="build",
     color="kmeans_summary",
-    category_orders={"kmeans_summary": [str(i) for i in range(best_k)]}
+    category_orders={"kmeans_summary": [str(i) for i in range(best_k)]},
+    symbol_map={"maven": "circle", "gradle": "star"}
 )
 
 # Save scatter plot
