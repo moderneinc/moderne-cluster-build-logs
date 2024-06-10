@@ -12,29 +12,19 @@ df = pd.read_pickle("df_with_embeddings_clusters.pkl")
 cluster_id_reason = {}
 best_k = df["kmeans_summary"].nunique()
 
-for cluster_id in tqdm(range(best_k)):
-    all_summaries = "\n".join(df[df["kmeans_summary"] == cluster_id]["Extracted logs"])
-    prompt = "[INST] Provide a short summary for the common reason for each of the following failures: " + all_summaries + "\n[/INST] Sure, here's a 5 words summary: \""
-    data = {"stream": False, "n_predict": 35, "prompt": prompt}
-    url = 'http://localhost:8080/completion'
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, json=data, headers=headers).text
-    content = json.loads(response)["content"].split("\n")[0].strip("\"")
-    cluster_id_reason[cluster_id] = content
-
-
-
-df["common_reason_of_failure"] = [cluster_id_reason[int(fail)] for fail in df["kmeans_summary"]]
 df["kmeans_summary"] = pd.Categorical(df["kmeans_summary"].astype(str), categories=[str(i) for i in range(best_k)], ordered=True)
 
 df["build"] = ["maven" if not pd.isna(row) else "gradle" for row in df["Maven Version"]]
+
+df["Extracted logs with line break"] = ["<br>".join(str(row).split("\n")[:8]) for row in df["Extracted logs"]]
 # Create scatter plot
 fig = px.scatter(
     df,
     x="x",
     y="y",
     log_x=False,
-    hover_name="Path",
+    # hover_name=["Path"],
+    hover_data=["Path", "Extracted logs with line break"],
     symbol="build",
     color="kmeans_summary",
     category_orders={"kmeans_summary": [str(i) for i in range(best_k)]},
@@ -44,21 +34,69 @@ fig = px.scatter(
 # Save scatter plot
 fig.write_html("analysis_build_failures.html")
 
-# Create and save summary table
-table_df = pd.DataFrame({
-    "Cluster ID": [str(i) for i in range(best_k)],
-    "Reason for Failure": [cluster_id_reason[i] for i in range(best_k)]
-})
 
-fig_table = go.Figure(data=[go.Table(
-    header=dict(values=list(table_df.columns), fill_color='paleturquoise', align='left'),
-    cells=dict(values=[table_df["Cluster ID"], table_df["Reason for Failure"]], fill_color='lavender', align='left'))
-])
+# Function to create dropdown options
+def create_dropdown_options(data, cluster_id, k=7):
+    samples = data[data["kmeans_summary"] == str(cluster_id)]["Extracted logs"]
+    samples = [str(sample).replace('\n', '<br>') for sample in samples]  # Replace \n with <br> for HTML formatting
+    return samples[:k]
 
-fig_table.write_html("cluster_id_reason.html")
+# Create dropdowns for each cluster
+dropdowns = []
+for cluster_id in range(best_k):
+    dropdowns.append(create_dropdown_options(df, str(cluster_id)))
+
+# Create figures for samples view
+sample_figs = []
+for cluster_id in range(best_k):
+    sample_fig = go.Figure(data=[go.Table(
+        header=dict(values=["Samples"], fill_color='paleturquoise', align='left'),
+        cells=dict(
+            values=[dropdowns[cluster_id]],
+            fill_color='lavender', 
+            align='left',
+            height=30
+        )
+    )])
+    sample_figs.append(sample_fig)
+
+# Generate dropdown options for Plotly
+dropdown_buttons = [
+    {
+        "label": f"Samples for cluster ID {cluster_id}",
+        "method": "update",
+        "args": [
+            {"visible": [i == cluster_id for i in range(best_k)]},
+        ]
+    } for cluster_id in range(best_k)
+]
+
+# Combine all sample figures into a single figure
+fig = go.Figure(data=[item for sublist in [fig.data for fig in sample_figs] for item in sublist])
+
+# Add dropdown menu to the figure
+fig.update_layout(
+    updatemenus=[
+        {
+            "buttons": dropdown_buttons,
+            "direction": "down",
+            "showactive": True,
+            "x": 0.5,
+            "xanchor": "center",
+            "y": 1.2,
+            "yanchor": "top"
+        }
+    ],
+    showlegend=False
+)
+
+# Set initial visibility
+initial_visibility = [True] + [False] * (best_k - 1)
+for i, data in enumerate(fig.data):
+    data.visible = initial_visibility[i]
+
+# Save the table to HTML
+fig.write_html("cluster_samples.html")
 
 # Save final dataframe
-df.to_csv("analysis_build_failures.csv")
-
-# Save intermediate results
 df.to_pickle("final_df.pkl")

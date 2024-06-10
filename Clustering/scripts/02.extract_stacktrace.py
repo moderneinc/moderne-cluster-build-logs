@@ -90,8 +90,6 @@ if __name__ == "__main__":
     # Load intermediate result
     df = pd.read_pickle("df_with_logs.pkl")
 
-    print(len(df))
-
     extract_stacktraces = []
     for row in df.iloc :
         # print(row["Maven Version"], row["Gradle Version"])
@@ -103,7 +101,17 @@ if __name__ == "__main__":
             # print("Not Maven nor Gradle for",  str(row["Path"]))
             extract_stacktraces.append(None)
 
+    
 
     # Save summaries
     df["Extracted logs"] = extract_stacktraces
+    any_failures = False
+    for row in df.iloc:
+        extract_stacktrace = row["Extracted logs"]
+        if extract_stacktrace is None or len(extract_stacktrace) == 0:
+            print("Failure to extract log's stack trace from ", str(row["Path"]))
+            any_failures = True
+
+    if not any_failures:
+        print("Succesfully extracted logs for", len(df), "repos")
     df.to_pickle("df_with_summaries.pkl")

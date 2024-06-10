@@ -31,11 +31,15 @@ df["embds_summaries"] = embds_summaries
 
 # Perform clustering
 best_silhouette_score = -100
-kmax = 15 # change back to 15
+
+kmax = 20
+assert kmax<len(df), "Number of clusters is set at " + str(kmax) + " which is lower than the number of rows, which is " + str(len(df)) + "."
 best_k = -1
 
-for k in range(3, kmax + 1):
-    kmeans = KMeans(n_clusters=k, random_state=0, n_init=10).fit_predict(embds_summaries)
+random_state = 42
+
+for k in range(12, kmax + 1):
+    kmeans = KMeans(n_clusters=k, n_init=10, random_state=random_state).fit_predict(embds_summaries)
     labels = kmeans
     score = silhouette_score(embds_summaries, labels, metric="euclidean")
     if score > best_silhouette_score:
@@ -46,7 +50,8 @@ for k in range(3, kmax + 1):
 df["kmeans_summary"] = best_kmeans
 
 # 2D mapping to show the clusters
-indices = umap.UMAP(n_neighbors=100, min_dist=0.7).fit_transform(embds_summaries)
+n_neighbors = 100 if len(df) > 100 else len(df)-1
+indices = umap.UMAP(n_neighbors=n_neighbors, min_dist=0.7, random_state=random_state).fit_transform(embds_summaries)
 df["x"] = indices[:, 0]
 df["y"] = indices[:, 1]
 
