@@ -63,7 +63,7 @@ for cluster_id in range(best_k):
 # Generate dropdown options for Plotly
 dropdown_buttons = [
     {
-        "label": f"Samples for cluster ID {cluster_id}",
+        "label": f"Samples for cluster ID {cluster_id}. Total Count : {len(df[df['kmeans_summary'] == str(cluster_id)])}",
         "method": "update",
         "args": [
             {"visible": [i == cluster_id for i in range(best_k)]},
