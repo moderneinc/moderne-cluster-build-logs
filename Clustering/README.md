@@ -129,7 +129,7 @@ cd ..
 You will use the CodeLlama model to analyze your code. Download the model by running:
 
 ```bash
-curl -L https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_M.gguf?download=true --output codellama.gguf
+curl -L https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf?download=true--output phi-2.gguf
 ```
 
 ### Step 8: Start the server
@@ -138,13 +138,13 @@ You will need to start up the llama server before you can run the scripts to ana
 
 ```bash
 # Abort after confirming it works
-llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080"
+llama.cpp/server -m "phi-2.gguf" -c 8000 --port "8080"
 ```
 
 Once you've confirmed it worked correctly, we'd encourage you to use [nohup](https://en.wikipedia.org/wiki/Nohup) to keep the server running in the background:
 
 ```bash
-nohup llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080" &
+nohup llama.cpp/server -m "phi-2.gguf" -c 8000 --port "8080" &
 ```
 
 This will return a process ID that you can later kill when you're done analyzing your builds. For more information on how to kill the server or how to get the process ID at a later time, please see the [additional server information section](#additional-server-information)
