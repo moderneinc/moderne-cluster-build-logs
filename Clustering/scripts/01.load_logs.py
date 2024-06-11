@@ -20,5 +20,5 @@ for logpath in df["Build Log"]:
 # Save logs
 df["logs"] = logs
 df.to_pickle("df_with_logs.pkl")
-
 print("Succesfully loaded " + str(len(df)) + " logs")
+

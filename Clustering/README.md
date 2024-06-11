@@ -4,9 +4,9 @@
 
 Please ensure you have the following tools installed on your system:
 
-* Python 3.X 
-    * [Homebrew installation](https://docs.brew.sh/Homebrew-and-Python) 
-    * [Official Python installer](https://www.python.org/downloads/)
+* Python 3.10 (newer versions will not work)
+    * [Homebrew installation](https://formulae.brew.sh/formula/python@3.10) 
+    * [Official Python installer](https://www.python.org/downloads/release/python-31014/)
 * GCC (GNU Compiler Collection)
     * [Homebrew installation](https://formulae.brew.sh/formula/gcc)
     * [GCC Binaries](https://gcc.gnu.org/install/binaries.html)
@@ -65,11 +65,11 @@ Clustering
 
 ### Step 3: Confirm that you have the right version of Python
 
-Depending on your operating system and how you've installed Python, you will run Python in the terminal by typing `python` or `python3`. Please ensure that the output from one of the following commands returns `Python 3.X.X`. **You will then use that command to run the rest of the Python commands in this repository**. 
+Depending on your operating system and how you've installed Python, you will run Python in the terminal by typing `python` or `python3.10`. Please ensure that the output from one of the following commands returns `Python 3.10.X`. **You will then use that command to run the rest of the Python commands in this repository**. 
 
 ```bash
 python --version
-python3 --version
+python3.10 --version
 ```
 
 ### Step 4: Set up the Python virtual environment
@@ -77,7 +77,9 @@ python3 --version
 You will be creating a server and running clustering inside of a Python virtual environment. To create said environment, please run:
 
 ```bash
+## Pick the one that applies to your system
 python -m venv venv
+python3.10 -m venv venv 
 
 ## For Mac or Linux users
 source venv/bin/activate
@@ -90,7 +92,7 @@ After running the `source` command, you should see that you're in a Python virtu
 
 ### Step 5: Install dependencies
 
-Double-check that `pip` is pointing to the correct Python version by running the following command. The output should include `python 3.X`. If it doesn't, try using `pip3` instead.
+Double-check that `pip` is pointing to the correct Python version by running the following command. The output should include `python 3.10.X`. If it doesn't, try using `pip3` instead.
 
 ```bash
 pip --version

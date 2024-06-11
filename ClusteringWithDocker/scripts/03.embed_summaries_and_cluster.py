@@ -31,7 +31,7 @@ df["embds_summaries"] = embds_summaries
 
 # Perform clustering
 best_silhouette_score = -100
-kmax = 2 # change back to 15
+kmax = 15
 best_k = -1
 
 for k in range(2, kmax + 1):
