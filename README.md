@@ -24,13 +24,13 @@ This project offers two options for performing cluster analysis:
 
 Below you can see some examples of the HTML files produced by following the above steps.
 
-### analysis_build_failures.html
+### clusters_scatter.html
 
 This file is a visual representation of the build failure clusters. Clusters that contain the most number of dots should generally be prioritized over ones that contain fewer dots. You can hover over the dots to see part of the build logs.
 
 ![expected_clusters](images/expected_clusters.gif)
 
-#### cluster_id_reason.html
+#### cluster_logs.html
 
 To see the full extracted logs, you may use this file. This file shows all the logs that belong to a cluster.
 
