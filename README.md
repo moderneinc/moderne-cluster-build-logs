@@ -12,13 +12,13 @@ This repository will walk you through everything you need to do to perform a clu
 
 This project offers two options for performing cluster analysis:
 
-1. Install a few tools (such as Python and GCC) on your local machine and then use them to generate the clusters. 
-2. (**Recommended**) Generate the clusters inside a Docker container.
+1. Install dependencies on your local machine and then use them to run the scripts locally to generate the clusters. (Running without docker might be faster, if your local machine has gpu or metal support.)
+2. Generate the clusters inside a Docker container. 
 
 ### Step 2: Follow the instructions for the path of your choice
 
 * [Instructions for installing tools on your local machine](/Clustering/README.md)
-* (**Recommended**) [Instructions for using Docker](/ClusteringWithDocker/README.md)
+* [Instructions for using Docker](/ClusteringWithDocker/README.md)
 
 ## Example results
 
