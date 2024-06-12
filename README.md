@@ -34,4 +34,4 @@ This file is a visual representation of the build failure clusters. Clusters tha
 
 To see the full extracted logs, you may use this file. This file shows all the logs that belong to a cluster.
 
-![logs](images/expected_all_logs.png)
+![logs](images/expected_logs.png)

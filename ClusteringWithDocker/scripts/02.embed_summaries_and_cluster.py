@@ -152,7 +152,7 @@ if __name__ == "__main__":
         data.visible = initial_visibility[i]
 
     # Save the table to HTML
-    fig.write_html("cluster_logs.html")
+    fig.write_html("clusters_logs.html")
 
     # Save final dataframe
     df.to_pickle("final_df.pkl")
