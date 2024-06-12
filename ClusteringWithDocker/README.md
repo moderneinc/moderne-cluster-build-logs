@@ -119,8 +119,8 @@ docker ps
 This will list all of the containers running along with their IDs and names. Figure out which container ID/name corresponds to this clustering repository and then run the following commands to copy the necessary files from the container to your host machine:
 
 ```bash
-docker cp <container_id_or_name>:/app/cluster_id_reason.html .
-docker cp <container_id_or_name>:/app/analysis_build_failures.html .
+docker cp <container_id_or_name>:/app/clusters_scatter.html .
+docker cp <container_id_or_name>:/app/clusters_logs.html .
 ```
 
 You can then open those HTML files in the browser of your choice to get detailed information about your build failures.
