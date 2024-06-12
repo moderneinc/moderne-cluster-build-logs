@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the requirements.txt file into the container at /app
 COPY requirements.txt .
 
+COPY scripts .
+COPY repos repos
+
 # Install virtualenv
 RUN pip install virtualenv
 
@@ -14,10 +17,8 @@ RUN pip install virtualenv
 RUN virtualenv venv
 
 # Activate the virtual environment and install the dependencies
-RUN . venv/bin/activate && pip install -r requirements.txt
+RUN . venv/bin/activate && pip install -r requirements.txt && python download_model.py
 
-COPY scripts .
-COPY repos repos
 
 # Ensure the virtual environment is activated for all shell sessions
 RUN echo "source /app/venv/bin/activate" >> ~/.bashrc
