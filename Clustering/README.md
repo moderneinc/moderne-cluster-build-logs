@@ -7,10 +7,6 @@ Please ensure you have the following tools installed on your system:
 * Python 3.10 (newer versions will not work)
     * [Homebrew installation](https://formulae.brew.sh/formula/python@3.10) 
     * [Official Python installer](https://www.python.org/downloads/release/python-31014/)
-* GCC (GNU Compiler Collection)
-    * [Homebrew installation](https://formulae.brew.sh/formula/gcc)
-    * [GCC Binaries](https://gcc.gnu.org/install/binaries.html)
-    * Linux systems should come with this pre-installed. If not, try running `sudo apt-get install gcc` (for Debian based distributions) or `sudo yum install gcc` (for RPM based distributions).
 * [Git](https://git-scm.com/downloads)
 
 ## Instructions
@@ -106,113 +102,29 @@ pip install -r requirements.txt
 
 If you can't find `requirements.txt`, please ensure that you're in the `Clustering` directory.
 
-### Step 6: Download and set up Llama
-
-Clone the [llama.cpp repository](https://github.com/ggerganov/llama.cpp) and `cd` into the directory:
-
-```bash
-git clone https://github.com/ggerganov/llama.cpp
-cd llama.cpp
-```
-
-Follow the [instructions in their repository to build llama](https://github.com/ggerganov/llama.cpp?tab=readme-ov-file#build). You may wish to customize hardware acceleration depending on your OS and hardware.
-
-Once you've run the `make` command inside of your clone, `cd` back to the `Clustering` directory:
-
-```bash
-make
-cd ..
-```
-
-### Step 7: Download the CodeLlama model
-
-You will use the CodeLlama model to analyze your code. Download the model by running:
-
-```bash
-curl -L https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_K_M.gguf?download=true--output phi-2.gguf
-```
-
-### Step 8: Start the server
-
-You will need to start up the llama server before you can run the scripts to analyze your code. We'd recommend you start by running the following command and then interrupting it if it started successfully (typically via `ctrl + c`):
-
-```bash
-# Abort after confirming it works
-llama.cpp/server -m "phi-2.gguf" -c 8000 --port "8080"
-```
-
-Once you've confirmed it worked correctly, we'd encourage you to use [nohup](https://en.wikipedia.org/wiki/Nohup) to keep the server running in the background:
-
-```bash
-nohup llama.cpp/server -m "phi-2.gguf" -c 8000 --port "8080" &
-```
-
-This will return a process ID that you can later kill when you're done analyzing your builds. For more information on how to kill the server or how to get the process ID at a later time, please see the [additional server information section](#additional-server-information)
-
-Please note that you can modify the server startup command to meet your needs – such as changing the path to the server or the path to the model.
-
-### Step 9: Run the scripts
+### Step 6: Run the scripts
 
 _Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `Clustering` directory you're working out of._
 
 Run the following scripts in order:
 
-1. Load the logs:
+1. Load the logs and extract relevant error messages and stacktraces from the logs:
+
+_Please note that the loaded logs only include those generated from failures to build Maven or Gradle projects. You can open `build.xlsx` if there are less logs loaded than expected_
 
 ```bash
-python scripts/01.load_logs.py
+python scripts/01.load_logs_and_extract.py
 ```
 
-2. Generate summaries from logs (this step can take a bit of time depending on how many repositories you're analyzing):
-    
-```bash
-python scripts/02.generate_summaries_from_logs.py
-```
-
-3. Embed summaries and cluster:
+2. Embed logs and cluster:
 
 ```bash
-python scripts/03.embed_summaries_and_cluster.py
+python scripts/02.embed_summaries_and_cluster.py
 ```
 
-4. Cluster summaries results:
-
-```bash
-python scripts/04.cluster_summaries_results.py
-```
-
-### Step 10: Analyze the results
+### Step 7: Analyze the results
 
 Once you've run the four scripts, you should find that a `cluster_id_reason.html` and `analysis_build_failures.html` file was produced. Open those in the browser of your choice to get detailed information about your build failures.
 
-Success! You can now freely exit out of the Python virtual environment by typing `exit` into the command line. You should also [turn off the llama server](#additional-server-information).
+Success! You can now freely exit out of the Python virtual environment by typing `exit` into the command line.
 
-## Additional server information
-
-If you've started the server using `nohup`, you can look for the process ID by running one of the following commands:
-
-**For Mac or Linux users:**
-
-```bash
-lsof -i :8080
-```
-
-**Windows users:**
-
-```bash
-netstat -ano | findstr :8080
-```
-
-These commands will return a process ID that you can then use to kill the server by running one of the following commands (replacing `<PID>` with the process ID returned from the above command):
-
-**For Mac or Linux users:**
-
-```bash
-kill -9 <PID>
-```
-
-**Windows users:**
-
-```bash
-taskkill /PID <PID> /F
-```

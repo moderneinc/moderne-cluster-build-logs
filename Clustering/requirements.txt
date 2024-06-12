@@ -4,7 +4,6 @@ plotly
 scikit-learn
 numpy
 umap-learn
-requests
 openpyxl
 torch == 2.0.1
 transformers == 4.38.0
