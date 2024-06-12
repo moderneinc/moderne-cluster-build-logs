@@ -25,7 +25,7 @@ Here is an example of what your directory should be look like if everything was 
 ClusteringWithDocker
 │
 ├───scripts
-│       (4 files)
+│       (2 files)
 │
 └───repos
     │   builds.xlsx
@@ -82,44 +82,30 @@ docker run --rm -it --entrypoint bash cluster_logs
 
 You should now be in a virtual environment inside of the Docker container.
 
-### Step 4: Start the Llama server
-
-From your virtual environment, start up the Llama server by running the following command:
-
-```bash
-nohup llama.cpp/server -m "codellama.gguf" -c 8000 --port "8080" &
-```
-
-You may notice that `nohup: ignoring input...` may appear on your command line. That is safe to ignore. Just press `enter` to get to a blank command line.
-
-### Step 5: Run the scripts
+### Step 4: Run the scripts
 
 _Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `ClusteringWithDocker` directory you're working out of._
 
 Run the following scripts in order:
 
-1. Load the logs:
+### Step 6: Run the scripts
+
+_Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `Clustering` directory you're working out of._
+
+Run the following scripts in order:
+
+1. Load the logs and extract relevant error messages and stacktraces from the logs:
+
+_Please note that the loaded logs only include those generated from failures to build Maven or Gradle projects. You can open `build.xlsx` if there are less logs loaded than expected_
 
 ```bash
-python 01.load_logs.py
+python 01.load_logs_and_extract.py
 ```
 
-2. Generate summaries from logs (this step can take **significant amount of time** – if you want to get summaries faster, consider following the [non-Docker clustering instructions](../Clustering/README.md)):
-    
-```bash
-python 02.generate_summaries_from_logs.py
-```
-
-3. Embed summaries and cluster:
+2. Embed logs and cluster:
 
 ```bash
-python 03.embed_summaries_and_cluster.py
-```
-
-4. Cluster summaries results:
-
-```bash
-python 04.cluster_summaries_results.py
+python 02.embed_summaries_and_cluster.py
 ```
 
 ### Step 6: Get the results
@@ -133,8 +119,8 @@ docker ps
 This will list all of the containers running along with their IDs and names. Figure out which container ID/name corresponds to this clustering repository and then run the following commands to copy the necessary files from the container to your host machine:
 
 ```bash
-docker cp <container_id_or_name>:/app/cluster_id_reason.html .
-docker cp <container_id_or_name>:/app/analysis_build_failures.html .
+docker cp <container_id_or_name>:/app/clusters_scatter.html .
+docker cp <container_id_or_name>:/app/clusters_logs.html .
 ```
 
 You can then open those HTML files in the browser of your choice to get detailed information about your build failures.

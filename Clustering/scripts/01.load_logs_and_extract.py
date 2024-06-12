@@ -1,6 +1,29 @@
 import pandas as pd
 import re
 
+def load_logs():
+    # Load data
+    df = pd.read_excel("repos/builds.xlsx")
+
+    # Only keep the logs of the failures
+    df = df[df["Outcome"] == "Failure"]
+    len_df = len(df)
+    df = pd.concat([df.dropna(subset=["Maven Version"]), df.dropna(subset=["Gradle Version"])])
+    print("Removed " + str(len_df - len(df)) + " rows for repos built without Maven nor Gradle")
+
+    # Extract logs
+    logs = []
+    for logpath in df["Build Log"]:
+        # Construct the file path
+        with open("repos/" + logpath, encoding='UTF-8') as f:
+            logs.append(f.read())
+
+    # Save logs
+    df["logs"] = logs
+    df.to_pickle("df_with_logs.pkl")
+    print("Succesfully loaded " + str(len(df)) + " logs")
+
+
 #FOR MAVEN
 def extract_stacktrace_maven(row):
     log = row["logs"]
@@ -86,6 +109,7 @@ def remove_lines_stacktrace_gradle(log):
 
 
 if __name__ == "__main__":
+    load_logs()
 
     # Load intermediate result
     df = pd.read_pickle("df_with_logs.pkl")
@@ -100,8 +124,6 @@ if __name__ == "__main__":
         else:
             # print("Not Maven nor Gradle for",  str(row["Path"]))
             extract_stacktraces.append(None)
-
-    
 
     # Save summaries
     df["Extracted logs"] = extract_stacktraces
