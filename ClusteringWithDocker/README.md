@@ -82,25 +82,19 @@ docker run --rm -it --entrypoint bash cluster_logs
 
 You should now be in a virtual environment inside of the Docker container.
 
-### Step 4: Run the scripts
+### Step 5: Run the scripts
 
 _Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `ClusteringWithDocker` directory you're working out of._
 
-Run the following scripts in order:
-
-### Step 6: Run the scripts
-
-_Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `Clustering` directory you're working out of._
-
-Run the following scripts in order:
+**Run the following scripts in order**:
 
 1. Load the logs and extract relevant error messages and stacktraces from the logs:
-
-_Please note that the loaded logs only include those generated from failures to build Maven or Gradle projects. You can open `build.xlsx` if there are less logs loaded than expected_
 
 ```bash
 python 01.load_logs_and_extract.py
 ```
+
+_Please note that the loaded logs only include those generated from failures to build Maven or Gradle projects. You can open `build.xlsx` if there are less logs loaded than expected_
 
 2. Embed logs and cluster:
 
