@@ -5,8 +5,9 @@
 Please ensure you have the following tools installed on your system:
 
 * Python 3.10 (newer versions will not work)
-    * [Homebrew installation](https://formulae.brew.sh/formula/python@3.10) 
-    * [Official Python installer](https://www.python.org/downloads/release/python-31014/)
+  * [pyenv](https://github.com/pyenv/pyenv) is recommended
+  * [Homebrew installation](https://formulae.brew.sh/formula/python@3.10) 
+  * [Official Python installer](https://www.python.org/downloads/release/python-31014/)
 * [Git](https://git-scm.com/downloads)
 
 ## Instructions
@@ -127,4 +128,3 @@ python scripts/02.embed_summaries_and_cluster.py
 Once you've run the two scripts, you should find that a `cluster_id_reason.html` and `analysis_build_failures.html` file was produced. Open those in the browser of your choice to get detailed information about your build failures.
 
 Success! You can now freely exit out of the Python virtual environment by typing `exit` into the command line.
-
