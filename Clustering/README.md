@@ -60,6 +60,17 @@ Clustering
                     build.log
 ```
 
+
+#### Using Moderne mass ingest logs
+
+If you want to use Moderne's mass ingest logs to run this scripts, you may use the following script to download a sample.
+
+```bash
+python scripts/00.download_ingest_samples.py
+```
+
+You will be prompted which of the slices you want to download. Enter the corresponding number and press `Enter`.
+
 ### Step 3: Confirm that you have the right version of Python
 
 Depending on your operating system and how you've installed Python, you will run Python in the terminal by typing `python` or `python3.10`. Please ensure that the output from one of the following commands returns `Python 3.10.X`. **You will then use that command to run the rest of the Python commands in this repository**. 

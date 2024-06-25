@@ -109,7 +109,7 @@ def download_and_unzip_file(url, file_name):
         return
 
     # Prepare extraction directory
-    extract_to = '../repos'
+    extract_to = 'repos'
     prepare_directory(extract_to)
 
     unzip_file(local_filename, extract_to)

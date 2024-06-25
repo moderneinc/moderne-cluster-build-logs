@@ -2,18 +2,19 @@ import pandas as pd
 import re
 
 def load_logs():
+
     # Load data
     df = pd.read_excel("repos/builds.xlsx")
-
+    print(df.columns)
     # Only keep the logs of the failures
     df = df[df["Outcome"] == "Failure"]
     len_df = len(df)
-    df = pd.concat([df.dropna(subset=["Maven Version"]), df.dropna(subset=["Gradle Version"])])
+    df = pd.concat([df.dropna(subset=["Maven version"]), df.dropna(subset=["Gradle version"])])
     print("Removed " + str(len_df - len(df)) + " rows for repos built without Maven nor Gradle")
 
     # Extract logs
     logs = []
-    for logpath in df["Build Log"]:
+    for logpath in df["Build log"]:
         # Construct the file path
         with open("repos/" + logpath, encoding='UTF-8') as f:
             logs.append(f.read())
@@ -116,13 +117,11 @@ if __name__ == "__main__":
 
     extract_stacktraces = []
     for row in df.iloc :
-        # print(row["Maven Version"], row["Gradle Version"])
-        if not pd.isna(row["Maven Version"]):
+        if not pd.isna(row["Maven version"]):
             extract_stacktraces.append(extract_stacktrace_maven(row))
-        elif not pd.isna(row["Gradle Version"]):
+        elif not pd.isna(row["Gradle version"]):
             extract_stacktraces.append(extract_stacktrace_gradle(row))
         else:
-            # print("Not Maven nor Gradle for",  str(row["Path"]))
             extract_stacktraces.append(None)
 
     # Save summaries
