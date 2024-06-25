@@ -7,12 +7,12 @@ import requests
 
 BASE_API_URL = "https://artifactory.moderne.ninja/ui/api/v1/ui/nativeBrowser/moderne-ingest/io/moderne/ingest-log/" # replace with your artifactory
 BASE_FILE_URL = "https://artifactory.moderne.ninja/artifactory/moderne-ingest/" # replace with your artifactory
-AUTH_TOKEN = ""  # Replace with base64(user:password)
+BASIC_AUTH = ""  # Replace with base64(user:password)
 
 
 def fetch_directory_contents(url):
     headers = {
-        "Authorization": f"Basic {AUTH_TOKEN}"
+        "Authorization": f"Basic {BASIC_AUTH}"
     }
     try:
         response = requests.get(url, headers=headers)
