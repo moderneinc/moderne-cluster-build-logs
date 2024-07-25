@@ -5,5 +5,5 @@ scikit-learn
 numpy
 umap-learn
 openpyxl
-torch == 2.0.1
+torch == 2.2.0
 transformers == 4.38.0
