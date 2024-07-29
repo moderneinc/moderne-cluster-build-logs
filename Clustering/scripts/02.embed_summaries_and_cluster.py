@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     df["kmeans_summary"] = pd.Categorical(df["kmeans_summary"].astype(str), categories=[str(i) for i in range(best_k)], ordered=True)
 
-    df["build"] = ["maven" if not pd.isna(row) else "gradle" for row in df["Maven Version"]]
+    df["build"] = ["maven" if not pd.isna(row) else "gradle" for row in df["Maven version"]]
 
     df["Extracted logs with line break"] = ["<br>".join(str(row).split("\n")[:8]) for row in df["Extracted logs"]]
     # Create scatter plot
