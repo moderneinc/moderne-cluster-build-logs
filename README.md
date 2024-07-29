@@ -6,19 +6,114 @@ You can think of cluster analysis as a way of grouping data into easily identifi
 
 This repository will walk you through everything you need to do to perform a cluster analysis on your build failures. By the end, you will have produced two HTML files – [one that visually displays the clusters](#analysis_build_failureshtml) and [one that contains samples for each cluster](#cluster_id_reasonhtml). 
 
+## Prerequisites
+
+NOTE: This repository contains a devcontainer specification, it is the recommended path to get setup as it ensures a consistent developer experience. If you so choose, you can
+install the necessary components locally. Running without docker might be faster, if your local machine has gpu or metal support. See [LOCAL_INSTALL.md](/LOCAL_INSTALL.md) for 
+how to get started.
+
+\
+Please ensure you have the following tools installed on your system:
+
+* A Devcontainer compatible client (GitHub Codespaces, GitPod, DevPod, Docker Desktop, Visual Studio Code, etc)
+* Optional:
+  * [Git](https://git-scm.com/downloads)
+
+
 ## Instructions
 
-### Step 1: Determine how you will run this project
+### Step 1: Clone this project
 
-This project offers two options for performing cluster analysis:
+Most Devcontainer clients will perform the clone on your behalf as well as initializing the workspace for you. If you specific client requires you to clone the workspace locally first, then you will need to perform that task using the following.
 
-1. Install dependencies on your local machine and then use them to run the scripts locally to generate the clusters. (Running without docker might be faster, if your local machine has gpu or metal support.)
-2. Generate the clusters inside a Docker container. 
+```bash
+git clone git@github.com:moderneinc/moderne-cluster-build-logs.git
+cd moderne-cluster-build-logs
+```
 
-### Step 2: Follow the instructions for the path of your choice
+### Step 2: Gather build logs
 
-* [Instructions for installing tools on your local machine](/Clustering/README.md)
-* [Instructions for using Docker](/ClusteringWithDocker/README.md)
+In order to perform an analysis on your build logs, all of them need to be copied over to this directory (`Clustering`). Please ensure that they are copied over inside a folder named `repos`. 
+
+You will also need a `build.xlsx` file that provides details about the builds such as where the build logs are located, what the outcome was, and what the path to the project is. This file should exist inside of `repos` directory.
+
+Here is an example of what your directory should be look like if everything was set up correctly:
+
+```
+Clustering
+│
+├───scripts
+│       (4 files)
+│
+└───repos
+    │   builds.xlsx
+    │
+    ├───Org1
+    │   ├───Repo1
+    │   │   └───main
+    │   │           build.log
+    │   │
+    │   └───Repo2
+    │       └───master
+    │               build.log
+    │
+    ├───Org2
+    │   ├───Repo1
+    │   │   └───main
+    │   │           build.log
+    │   │
+    │   └───Repo2
+    │       └───master
+    │               build.log
+    │
+    └───Org3
+        └───Repo1
+            └───main
+                    build.log
+```
+
+
+#### Using Moderne mass ingest logs
+
+If you want to use Moderne's mass ingest logs to run this scripts, you may use the following script to download a sample.
+
+```bash
+python scripts/00.download_ingest_samples.py
+```
+
+You will be prompted which of the slices you want to download. Enter the corresponding number and press `Enter`.
+
+
+### Step 3: Run the scripts
+
+_Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `Clustering` directory you're working out of._
+
+**Run the following scripts in order**:
+
+1. Load the logs and extract relevant error messages and stacktraces from the logs:
+
+```bash
+python scripts/01.load_logs_and_extract.py
+```
+
+_Please note that the loaded logs only include those generated from failures to build Maven or Gradle projects. You can open `build.xlsx` if there are less logs loaded than expected_
+
+2. Embed logs and cluster:
+
+```bash
+python scripts/02.embed_summaries_and_cluster.py
+```
+
+### Step 4: Analyze the results
+
+Once you've run the two scripts, you should find that a `clusters_scatter.html` and `clusters_logs.html` file were produced. Open those in the browser of your choice to get detailed information about your build failures.
+
+```bash
+python -m http.server 8080
+```
+
+Success! These can now be viewed in your browser at http://localhost:8080/clusters_scatter.html and http://localhost:8080/clusters_logs.html.
+
 
 ## Example results
 
