@@ -86,7 +86,7 @@ You will be prompted which of the slices you want to download. Enter the corresp
 
 ### Step 3: Run the scripts
 
-_Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory and put that inside of the `Clustering` directory you're working out of._
+_Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory you're working out of._
 
 **Run the following scripts in order**:
 
