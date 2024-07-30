@@ -1,10 +1,8 @@
-# Creating clusters without Docker
-
 ## Prerequisites
 
 Please ensure you have the following tools installed on your system:
 
-* Python 3.10 (newer versions will not work)
+* Python 3.12 (newer versions will not work)
   * [pyenv](https://github.com/pyenv/pyenv) is recommended
   * [Homebrew installation](https://formulae.brew.sh/formula/python@3.10) 
   * [Official Python installer](https://www.python.org/downloads/release/python-31014/)
@@ -14,21 +12,60 @@ Please ensure you have the following tools installed on your system:
 
 ### Step 1: Clone this project
 
-```shell
+```bash
 git clone git@github.com:moderneinc/moderne-cluster-build-logs.git
-cd moderne-cluster-build-logs/Clustering
+cd moderne-cluster-build-logs
 ```
 
-### Step 2: Gather build logs
+### Step 2: Set up the Python virtual environment
 
-In order to perform an analysis on your build logs, all of them need to be copied over to this directory (`Clustering`). Please ensure that they are copied over inside a folder named `repos`. 
+You will be creating a server and running clustering inside of a Python virtual environment. To create said environment, please run:
+
+```bash
+## Pick the one that applies to your system
+python -m venv venv
+
+## For Mac or Linux users
+source venv/bin/activate
+
+## For Windows users
+source venv\Scripts\activate
+```
+
+After running the `source` command, you should see that you're in a Python virtual environment.
+
+### Step 3: Install dependencies
+
+Double-check that `pip` is pointing to the correct Python version by running the following command. The output should include `python 3.12.X`. If it doesn't, try using `pip3` instead.
+
+```bash
+pip --version
+```
+
+Once you've confirmed which `pip` works for you, install dependencies by running the following command:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Step 4: Download the model
+
+Download the model which will assist with tokenizing and clustering of the build log data.
+
+```bash
+python script/download_model.py
+```
+
+### Step 5: Gather build logs
+
+In order to perform an analysis on your build logs, all of them need to be copied over to this directory. Please ensure that they are copied over inside a folder named `repos`. 
 
 You will also need a `build.xlsx` file that provides details about the builds such as where the build logs are located, what the outcome was, and what the path to the project is. This file should exist inside of `repos` directory.
 
 Here is an example of what your directory should be look like if everything was set up correctly:
 
 ```
-Clustering
+moderne-cluster-build-logs
 │
 ├───scripts
 │       (4 files)
@@ -71,48 +108,6 @@ python scripts/00.download_ingest_samples.py
 
 You will be prompted which of the slices you want to download. Enter the corresponding number and press `Enter`.
 
-### Step 3: Confirm that you have the right version of Python
-
-Depending on your operating system and how you've installed Python, you will run Python in the terminal by typing `python` or `python3.10`. Please ensure that the output from one of the following commands returns `Python 3.10.X`. **You will then use that command to run the rest of the Python commands in this repository**. 
-
-```bash
-python --version
-python3.10 --version
-```
-
-### Step 4: Set up the Python virtual environment
-
-You will be creating a server and running clustering inside of a Python virtual environment. To create said environment, please run:
-
-```bash
-## Pick the one that applies to your system
-python -m venv venv
-python3.10 -m venv venv 
-
-## For Mac or Linux users
-source venv/bin/activate
-
-## For Windows users
-source venv\Scripts\activate
-```
-
-After running the `source` command, you should see that you're in a Python virtual environment.
-
-### Step 5: Install dependencies
-
-Double-check that `pip` is pointing to the correct Python version by running the following command. The output should include `python 3.10.X`. If it doesn't, try using `pip3` instead.
-
-```bash
-pip --version
-```
-
-Once you've confirmed which `pip` works for you, install dependencies by running the following command:
-
-```bash
-pip install -r requirements.txt
-```
-
-If you can't find `requirements.txt`, please ensure that you're in the `Clustering` directory.
 
 ### Step 6: Run the scripts
 
@@ -139,3 +134,19 @@ python scripts/02.embed_summaries_and_cluster.py
 Once you've run the two scripts, you should find that a `cluster_id_reason.html` and `analysis_build_failures.html` file was produced. Open those in the browser of your choice to get detailed information about your build failures.
 
 Success! You can now freely exit out of the Python virtual environment by typing `exit` into the command line.
+
+## Example results
+
+Below you can see some examples of the HTML files produced by following the above steps.
+
+### clusters_scatter.html
+
+This file is a visual representation of the build failure clusters. Clusters that contain the most number of dots should generally be prioritized over ones that contain fewer dots. You can hover over the dots to see part of the build logs.
+
+![expected_clusters](images/expected_clusters.gif)
+
+#### cluster_logs.html
+
+To see the full extracted logs, you may use this file. This file shows all the logs that belong to a cluster.
+
+![logs](images/expected_logs.png)
