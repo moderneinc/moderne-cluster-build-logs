@@ -6,6 +6,8 @@ You can think of cluster analysis as a way of grouping data into easily identifi
 
 This repository will walk you through everything you need to do to perform a cluster analysis on your build failures. By the end, you will have produced two HTML files – [one that visually displays the clusters](#analysis_build_failureshtml) and [one that contains samples for each cluster](#cluster_id_reasonhtml). 
 
+NOTE: Clustering is currently limited to Maven or Gradle builds because our heuristic-based extraction of build errors is specific to these build types. Although build failures for other types won’t cause error when clustering, their logs might not be clustered.
+
 ## Prerequisites
 
 NOTE: This repository contains a devcontainer specification, it is the recommended path to get setup as it ensures a consistent developer experience. If you so choose, you can
