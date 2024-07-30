@@ -40,7 +40,7 @@ You will also need a `build.xlsx` file that provides details about the builds su
 Here is an example of what your directory should be look like if everything was set up correctly:
 
 ```
-Clustering
+moderne-cluster-build-logs
 │
 ├───scripts
 │       (4 files)
