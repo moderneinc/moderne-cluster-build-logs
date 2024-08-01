@@ -4,17 +4,19 @@ When your company attempts to build [Lossless Semantic Trees (LSTs)](https://doc
 
 You can think of cluster analysis as a way of grouping data into easily identifiable chunks. In other words, it can take in all of your build failures and then find what issues are the most common – so you can prioritize what to fix first.
 
-This repository will walk you through everything you need to do to perform a cluster analysis on your build failures. By the end, you will have produced two HTML files – [one that visually displays the clusters](#analysis_build_failureshtml) and [one that contains samples for each cluster](#cluster_id_reasonhtml). 
+This repository will walk you through everything you need to do to perform a cluster analysis on your build failures. By the end, you will have produced two HTML files:
+1. [one that visually displays the clusters](#analysis_build_failureshtml)
+2. [one that contains samples for each cluster](#cluster_id_reasonhtml). 
 
 NOTE: Clustering is currently limited to Maven or Gradle builds because our heuristic-based extraction of build errors is specific to these build types. Although build failures for other types won’t cause error when clustering, their logs might not be clustered.
 
 ## Prerequisites
 
-NOTE: This repository contains a devcontainer specification, it is the recommended path to get setup as it ensures a consistent developer experience. If you so choose, you can
-install the necessary components locally. Running without docker might be faster, if your local machine has gpu or metal support. See [LOCAL_INSTALL.md](/LOCAL_INSTALL.md) for 
+> [!NOTE]
+> This repository contains a devcontainer specification, it is the recommended path to get setup as it ensures a consistent developer experience. If you so choose, you can
+install the necessary components locally. Running without docker might be faster, if your local machine has GPU or metal support. See [LOCAL_INSTALL.md](/LOCAL_INSTALL.md) for 
 how to get started.
 
-\
 Please ensure you have the following tools installed on your system:
 
 * A Devcontainer compatible client (GitHub Codespaces, GitPod, DevPod, Docker Desktop, Visual Studio Code, etc)
@@ -88,7 +90,8 @@ You will be prompted which of the slices you want to download. Enter the corresp
 
 ### Step 3: Run the scripts
 
-_Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory you're working out of._
+> [!WARNING]
+> Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory you're working out of.
 
 **Run the following scripts in order**:
 
@@ -121,13 +124,13 @@ Success! These can now be viewed in your browser at http://localhost:8080/cluste
 
 Below you can see some examples of the HTML files produced by following the above steps.
 
-### clusters_scatter.html
+### `clusters_scatter.html`
 
 This file is a visual representation of the build failure clusters. Clusters that contain the most number of dots should generally be prioritized over ones that contain fewer dots. You can hover over the dots to see part of the build logs.
 
 ![expected_clusters](images/expected_clusters.gif)
 
-#### cluster_logs.html
+### `cluster_logs.html`
 
 To see the full extracted logs, you may use this file. This file shows all the logs that belong to a cluster.
 
