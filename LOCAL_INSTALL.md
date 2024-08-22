@@ -131,7 +131,7 @@ python scripts/02.embed_summaries_and_cluster.py
 
 ### Step 7: Analyze the results
 
-Once you've run the two scripts, you should find that a `cluster_id_reason.html` and `analysis_build_failures.html` file was produced. Open those in the browser of your choice to get detailed information about your build failures.
+Once you've run the two scripts, you should find that a `clusters_scatter.html` and `clusters_logs.html` file was produced. Open those in the browser of your choice to get detailed information about your build failures.
 
 Success! You can now freely exit out of the Python virtual environment by typing `exit` into the command line.
 
