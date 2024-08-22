@@ -53,7 +53,7 @@ pip install -r requirements.txt
 Download the model which will assist with tokenizing and clustering of the build log data.
 
 ```bash
-python script/download_model.py
+python scripts/download_model.py
 ```
 
 ### Step 5: Gather build logs
