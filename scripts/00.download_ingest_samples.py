@@ -25,7 +25,7 @@ def main():
     if args.file:
         download_and_unzip_file(f"{args.url}/{args.repo_key}/{args.file}", auth, 'ingest.zip')
     else:
-        download_logs_interactive(args.url, args.repo_key, auth, "io/moderne/ingest-log")
+        download_logs_interactive(args.url, args.repo_key, auth, "io/moderne")
 
 
 def download_and_unzip_file(url, auth, file_name):
@@ -54,6 +54,13 @@ def download_logs_interactive(url, repo_key, auth, path):
     if not sorted_items:
         print("No files found to download.")
         return
+
+    if len(sorted_items) == 1:
+        selected_item = sorted_items[0]
+        if selected_item['name'].endswith(".zip"):
+            download_and_unzip_file(f"{url}/{repo_key}/{selected_item['path']}", auth, selected_item['name'])
+        else:
+            download_logs_interactive(url, repo_key, auth, selected_item['path'])
 
     for idx, file in enumerate(sorted_items, 1):
         print(f"[{idx}] {file['path']}")
