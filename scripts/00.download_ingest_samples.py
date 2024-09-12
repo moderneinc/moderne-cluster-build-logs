@@ -59,8 +59,10 @@ def download_logs_interactive(url, repo_key, auth, path):
         selected_item = sorted_items[0]
         if selected_item['name'].endswith(".zip"):
             download_and_unzip_file(f"{url}/{repo_key}/{selected_item['path']}", auth, selected_item['name'])
+            return
         else:
             download_logs_interactive(url, repo_key, auth, selected_item['path'])
+            return
 
     for idx, file in enumerate(sorted_items, 1):
         print(f"[{idx}] {file['path']}")
