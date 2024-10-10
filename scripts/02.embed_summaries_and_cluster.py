@@ -68,22 +68,40 @@ if __name__ == "__main__":
     cluster_id_reason = {}
     best_k = df["kmeans_summary"].nunique()
 
-    df["kmeans_summary"] = pd.Categorical(df["kmeans_summary"].astype(str), categories=[str(i) for i in range(best_k)], ordered=True)
+    df["Cluster label"] = pd.Categorical(df["kmeans_summary"].astype(str), categories=[str(i) for i in range(best_k)], ordered=True)
 
-    df["build"] = ["maven" if not pd.isna(row) else "gradle" for row in df["Maven version"]]
+    df["Build"] = ["maven" if not pd.isna(row) else "gradle" for row in df["Maven version"]]
 
-    df["Extracted logs with line break"] = ["<br>".join(str(row).split("\n")[:8]) for row in df["Extracted logs"]]
+    def wrap_line(text, max_len=200, max_lines=8):
+        lines = text.split("\n")
+        wrapped_lines = []
+        for line in lines:
+            while len(line) > max_len:
+                wrapped_lines.append(line[:max_len])
+                line = line[max_len:]
+            wrapped_lines.append(line)
+            if len(wrapped_lines) >= max_lines:
+                wrapped_lines = wrapped_lines[:max_lines]
+                wrapped_lines[-1] += "(...)"  # Add ellipsis if truncated
+                break
+        return "<br>".join(wrapped_lines)
+
+    df["Extracted logs"] = df["Extracted logs"].apply(lambda row: wrap_line(str(row)))
     # Create scatter plot
     fig = px.scatter(
         df,
         x="x",
         y="y",
         log_x=False,
-        # hover_name=["Path"],
-        hover_data=["Path", "Branch", "Extracted logs with line break"],
-        symbol="build",
-        color="kmeans_summary",
-        category_orders={"kmeans_summary": [str(i) for i in range(best_k)]},
+        hover_data={
+        "x": False,    # Exclude x from hover data
+        "y": False,    # Exclude y from hover data
+        "Path": True,
+        "Branch": True,
+        "Extracted logs": True}, # Rename column in hover
+        symbol="Build",
+        color="Cluster label",
+        category_orders={"Cluster label": [str(i) for i in range(best_k)]},
         symbol_map={"maven": "circle", "gradle": "star"}
     )
 
