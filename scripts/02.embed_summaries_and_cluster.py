@@ -80,7 +80,7 @@ if __name__ == "__main__":
         y="y",
         log_x=False,
         # hover_name=["Path"],
-        hover_data=["Path", "Extracted logs with line break"],
+        hover_data=["Path", "Branch", "Extracted logs with line break"],
         symbol="build",
         color="kmeans_summary",
         category_orders={"kmeans_summary": [str(i) for i in range(best_k)]},
