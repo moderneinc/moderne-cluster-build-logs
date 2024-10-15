@@ -9,7 +9,7 @@ def load_logs():
     # Only keep the logs of the failures
     df = df[df["Outcome"] == "Failure"]
     len_df = len(df)
-    df = pd.concat([df.dropna(subset=["Maven version"]), df.dropna(subset=["Gradle version"])])
+    df = pd.concat([df.dropna(subset=["Maven version"]), df.dropna(subset=["Gradle version"])]).drop_duplicates()
     print("Removed " + str(len_df - len(df)) + " rows for repos built without Maven nor Gradle")
 
     # Extract logs
