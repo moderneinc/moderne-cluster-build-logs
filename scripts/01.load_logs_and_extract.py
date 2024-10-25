@@ -1,11 +1,37 @@
 import pandas as pd
 import re
+import os 
 
-def load_logs():
+def load_failure_logs():
 
+    #check if repos/failure.xlsx exists
+    if not os.path.exists("repos/failures.csv"):
+        populate_logs()
+    
+    df = pd.read_csv("repos/failures.csv")
+    number_of_logs = len(df)
+    
+
+    for idx, row in df.iterrows():
+        logpath = row["Build log"]
+        if not os.path.exists("repos/" + logpath):
+            # if you cannot find the log, we can assume the user considers that type of failure as solved
+            df.at[idx, "Solved"] = True
+
+    # only keep the logs of the failures that haven't been solved yet
+    df = df[df["Solved"] == False]
+
+    df.to_pickle("df_with_logs.pkl")
+    print("Succesfully loaded " + str(len(df)) + " logs. " + str(number_of_logs - len(df)) + " logs were already solved, therefore ignored.")
+
+def populate_logs():
     # Load data
     df = pd.read_excel("repos/builds.xlsx")
-    print(df.columns)
+
+    # Add column "Solved" if not present, default to False
+    if "Solved" not in df.columns:
+        df["Solved"] = False
+    x = df["Solved"]
     # Only keep the logs of the failures
     df = df[df["Outcome"] == "Failure"]
     len_df = len(df)
@@ -14,15 +40,20 @@ def load_logs():
 
     # Extract logs
     logs = []
-    for logpath in df["Build log"]:
-        # Construct the file path
-        with open("repos/" + logpath, encoding='UTF-8') as f:
-            logs.append(f.read())
+    for idx, row in df.iterrows():
+        logpath = row["Build log"]
+        try:
+            # Construct the file path
+            with open("repos/" + logpath, encoding='UTF-8') as f:
+                logs.append(f.read())
+        #if you cannot find the log, we can assume the user considers that type of failure as solved
+        except FileNotFoundError:
+            df.at[idx, "Solved"] = True
+            logs.append(None)
 
     # Save logs
     df["logs"] = logs
-    df.to_pickle("df_with_logs.pkl")
-    print("Succesfully loaded " + str(len(df)) + " logs")
+    df.to_csv("repos/failures.csv")
 
 
 #FOR MAVEN
@@ -44,7 +75,7 @@ def extract_stacktrace_maven(row):
     if len(matches) > 0:
         extracted_log = remove_lines_stacktrace_maven(matches[-1])
         return extracted_log 
-    print(log)
+    # print(log)
     return None
 
 def remove_lines_stacktrace_maven(log):
@@ -103,14 +134,14 @@ def remove_lines_stacktrace_gradle(log):
 
     if len(lines_to_keep) == 0:
         print("No lines left after removing stacktrace")
-        print(log)
+        # print(log)
         return ""
 
     return "\n".join(lines_to_keep)
 
 
 if __name__ == "__main__":
-    load_logs()
+    load_failure_logs()
 
     # Load intermediate result
     df = pd.read_pickle("df_with_logs.pkl")
