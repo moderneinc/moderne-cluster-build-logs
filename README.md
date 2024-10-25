@@ -119,6 +119,9 @@ python -m http.server 8080
 
 Success! These can now be viewed in your browser at http://localhost:8080/clusters_scatter.html and http://localhost:8080/clusters_logs.html.
 
+### Optional: Marking a certain repository as "solved"
+
+As you work through the build failures, you might want to exclude logs that have been marked as solved from the clustering process. To do this, open the `failures.csv` file and set the `Solved` column to `True` for the logs you want to ignore. Alternatively, you can delete or rename the build.log file for that repository. After making these changes, restart the clustering script from step 3.
 
 ## Example results
 
