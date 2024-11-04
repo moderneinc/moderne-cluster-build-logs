@@ -83,23 +83,19 @@ def download_logs_interactive(url, repo_key, auth, path):
 
 def collect_items(url, auth, path):
     results = []
-    data = fetch_directory_contents(f"{url}/{path}?list&listFolders=1", auth)
+    data = fetch_directory_contents(f"{url}/{path}", auth)
     if data is None:
         return results
 
-    for child in data.get('files', []):
+    for child in data.get('children', []):
         if child['folder']:
             results.append({
                 'name': child['uri'][1:] + "/",
-                'lastModified': child['lastModified'],
-                'size': child['size'],
                 'path': f"{path}{child['uri']}"
             })
         elif child['uri'].endswith(".zip"):
             results.append({
                 'name': child['uri'][1:],
-                'lastModified': child['lastModified'],
-                'size': child['size'],
                 'path': f"{path}{child['uri']}"
             })
 
