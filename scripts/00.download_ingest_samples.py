@@ -41,7 +41,7 @@ def download_and_unzip_file(url, auth, file_name):
 
     # Count files in repos
     file_count = len([name for name in os.listdir(extract_to) if os.path.isfile(os.path.join(extract_to, name))])
-    print(f"Extracted {file_count} files to {extract_to}")
+    print(f"Extracted {file_count} file{'s' if file_count != 1 else ''} to {extract_to}")
 
     # Remove downloaded zip file
     os.remove(local_filename)
