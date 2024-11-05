@@ -22,7 +22,7 @@ def load_failure_logs():
     df = df[df["Solved"] == False]
 
     df.to_pickle("df_with_logs.pkl")
-    print("Succesfully loaded " + str(len(df)) + " logs. " + str(number_of_logs - len(df)) + " logs were already solved, therefore ignored.")
+    print("Succesfully loaded " + str(len(df)) + " logs. There were " + str(number_of_logs - len(df)) + " logs that were already solved, therefore they are not loaded.")
 
 def populate_logs():
     # Load data
@@ -35,8 +35,8 @@ def populate_logs():
     # Only keep the logs of the failures
     df = df[df["Outcome"] == "Failure"]
     len_df = len(df)
-    df = pd.concat([df.dropna(subset=["Maven version"]), df.dropna(subset=["Gradle version"])]).drop_duplicates()
-    print("Removed " + str(len_df - len(df)) + " rows for repos built without Maven nor Gradle")
+    df = df.drop_duplicates()
+    print("Removed " + str(len_df - len(df)) + " duplicates")
 
     # Extract logs
     logs = []
@@ -54,6 +54,23 @@ def populate_logs():
     # Save logs
     df["logs"] = logs
     df.to_csv("repos/failures.csv")
+
+#FOR BAZEL
+def extract_stacktrace_bazel(row):
+    log = row["logs"]
+    splits = log.split("BUILD FAILED with an exception:")
+    message = splits[-1].strip().split("\n")[0]
+    if splits[-2].strip().split("\n")[-1].startswith("ERROR"):
+        message += "\n" + splits[-2].strip().split("\n")[-1]
+    return message
+
+#FOR DOTNET
+def extract_stacktrace_dotnet(row):
+    log = row["logs"]
+    get_caused_by = log.split("Caused by: ")[-1]
+    if get_caused_by:
+        return get_caused_by.split("\n")[0]
+    return ""
 
 
 #FOR MAVEN
@@ -152,9 +169,23 @@ if __name__ == "__main__":
             extract_stacktraces.append(extract_stacktrace_maven(row))
         elif not pd.isna(row["Gradle version"]):
             extract_stacktraces.append(extract_stacktrace_gradle(row))
+        elif not pd.isna(row["Bazel version"]):
+            extract_stacktraces.append(extract_stacktrace_bazel(row))
+        elif not pd.isna(row["Dotnet version"]):
+            extract_stacktraces.append(extract_stacktrace_dotnet(row))
         else:
-            extract_stacktraces.append(None)
+            #If unsure what type of build, try all of them and keep the first one
+            extracted_as_gradle = extract_stacktrace_gradle(row)
+            extracted_as_maven = extract_stacktrace_maven(row)
+            extracted_as_bazel = extract_stacktrace_bazel(row)
+            extracted_as_dotnet = extract_stacktrace_dotnet(row)
 
+            for extracted in [extracted_as_gradle, extracted_as_maven, extracted_as_bazel, extracted_as_dotnet]:
+                if extracted is not None:
+                    extract_stacktraces.append(extracted)
+                    break
+            
+            
     # Save summaries
     df["Extracted logs"] = extract_stacktraces
     any_failures = False

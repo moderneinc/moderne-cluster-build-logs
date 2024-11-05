@@ -56,6 +56,17 @@ def embed_summaries_cluster():
 
     # Save intermediate results
     df.to_pickle("df_with_embeddings_clusters.pkl")
+def get_build_type(row):
+    if not pd.isna(row["Maven version"]):
+        return "maven"
+    elif not pd.isna(row["Gradle version"]):
+        return "gradle"
+    elif not pd.isna(row["Bazel version"]):
+        return "bazel"
+    elif not pd.isna(row["Dotnet version"]):
+        return "dotnet"
+    else:
+        return "unknown/other"
 
 if __name__ == "__main__":
     embed_summaries_cluster()
@@ -70,7 +81,7 @@ if __name__ == "__main__":
 
     df["Cluster label"] = pd.Categorical(df["kmeans_summary"].astype(str), categories=[str(i) for i in range(best_k)], ordered=True)
 
-    df["Build"] = ["maven" if not pd.isna(row) else "gradle" for row in df["Maven version"]]
+    df["Build"] = df.apply(lambda row: get_build_type(row), axis=1)
 
     def wrap_line(text, max_len=200, max_lines=8):
         lines = text.split("\n")
@@ -102,7 +113,7 @@ if __name__ == "__main__":
         symbol="Build",
         color="Cluster label",
         category_orders={"Cluster label": [str(i) for i in range(best_k)]},
-        symbol_map={"maven": "circle", "gradle": "star"}
+        symbol_map={"maven": "circle", "gradle": "star", "bazel": "diamond", "dotnet": "hexagon", "unknown/other": "cross"},
     )
 
     # Save scatter plot
