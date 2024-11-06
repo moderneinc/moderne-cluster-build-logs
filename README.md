@@ -8,7 +8,7 @@ This repository will walk you through everything you need to do to perform a clu
 1. [one that visually displays the clusters](#analysis_build_failureshtml)
 2. [one that contains samples for each cluster](#cluster_id_reasonhtml). 
 
-NOTE: Clustering is currently limited to Maven or Gradle builds because our heuristic-based extraction of build errors is specific to these build types. Although build failures for other types won’t cause error when clustering, their logs might not be clustered.
+NOTE: Clustering is currently limited to Maven, Gradle, .Net, and Bazel builds because our heuristic-based extraction of build errors is specific to these build types. Although build failures for other types won’t cause error when clustering, the heuristic extraction may overlook valuable parts of the stack trace.
 
 ## Prerequisites
 
@@ -26,7 +26,7 @@ Please ensure you have the following tools installed on your system:
 
 ## Instructions
 
-### Step 1: Clone this project
+### Clone this project
 
 Most Devcontainer clients will perform the clone on your behalf as well as initializing the workspace for you. If you specific client requires you to clone the workspace locally first, then you will need to perform that task using the following.
 
@@ -35,7 +35,7 @@ git clone git@github.com:moderneinc/moderne-cluster-build-logs.git
 cd moderne-cluster-build-logs
 ```
 
-### Step 2: Gather build logs
+### Gather build logs
 
 In order to perform an analysis on your build logs, all of them need to be copied over to this directory (`Clustering`). Please ensure that they are copied over inside a folder named `repos`. 
 
@@ -88,28 +88,34 @@ python scripts/00.download_ingest_samples.py
 You will be prompted which of the slices you want to download. Enter the corresponding number and press `Enter`.
 
 
-### Step 3: Run the scripts
+### Run the scripts
 
 > [!WARNING]
 > Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory you're working out of.
 
 **Run the following scripts in order**:
-
-1. Load the logs and extract relevant error messages and stacktraces from the logs:
-
-```bash
-python scripts/01.load_logs_and_extract.py
-```
-
-_Please note that the loaded logs only include those generated from failures to build Maven or Gradle projects. You can open `build.xlsx` if there are less logs loaded than expected_
-
-2. Embed logs and cluster:
+#### Step 1
+The first time you run this script, you must first run `01.extract_failures.py` to extract only the logpaths for the failed build stacktraces.
 
 ```bash
-python scripts/02.embed_summaries_and_cluster.py
+python scripts/01.extract_failures.py
 ```
 
-### Step 4: Analyze the results
+#### Step 2
+Load the logs and extract relevant error messages and stacktraces from the logs: 
+
+```bash
+python scripts/02.load_logs_and_extract.py
+```
+
+#### Step 3
+Embed logs and cluster:
+
+```bash
+python scripts/03.embed_summaries_and_cluster.py
+```
+
+### Analyze the results
 
 Once you've run the two scripts, you should find that a `clusters_scatter.html` and `clusters_logs.html` file were produced. Open those in the browser of your choice to get detailed information about your build failures.
 
@@ -121,7 +127,7 @@ Success! These can now be viewed in your browser at http://localhost:8080/cluste
 
 ### Optional: Marking a certain repository as "solved"
 
-As you work through the build failures, you might want to exclude logs that have been marked as solved from the clustering process. To do this, open the `failures.csv` file and set the `Solved` column to `True` for the logs you want to ignore. Alternatively, you can delete or rename the build.log file for that repository. After making these changes, restart the clustering script from step 3.
+As you work through the build failures, you might want to exclude logs that have been marked as solved from the clustering process. To do this, open the `failures.csv` file and set the `Solved` column to `True` for the logs you want to ignore. Alternatively, you can delete or rename the `build.log` file for that repository. After making these changes, you can re-run the clustering process by re-starting at [step 2](#step-2). You may repeat steps [2](#step-2) and [3](#step-3) repeatedly to update the graphics as many times as needed.
 
 ## Example results
 
