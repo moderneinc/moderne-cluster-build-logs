@@ -1,59 +1,35 @@
 import pandas as pd
 import re
 import os 
+from utils import PATH_TO_BUILDS, PATH_TO_FAILURES
 
 def load_failure_logs():
 
-    #check if repos/failure.xlsx exists
-    if not os.path.exists("repos/failures.csv"):
-        populate_logs()
+    #check if repos/failure.csv exists
+    if not os.path.exists(PATH_TO_FAILURES):
+        #exit
+        print("File not found: " + PATH_TO_BUILDS + ". Please run 00.download_ingest_samples.py and 01.extract_failures.py first.")
+        exit(1)
     
-    df = pd.read_csv("repos/failures.csv")
+    df = pd.read_csv(PATH_TO_FAILURES)
     number_of_logs = len(df)
-    
+    if "logs" not in df.columns:
+        df["logs"] = None
 
     for idx, row in df.iterrows():
         logpath = row["Build log"]
         if not os.path.exists("repos/" + logpath):
             # if you cannot find the log, we can assume the user considers that type of failure as solved
             df.at[idx, "Solved"] = True
-
+        elif row["logs"] is None:
+            df.at[idx, "logs"] = open("repos/" + logpath, encoding='UTF-8').read()
+            
     # only keep the logs of the failures that haven't been solved yet
     df = df[df["Solved"] == False]
 
     df.to_pickle("df_with_logs.pkl")
     print("Succesfully loaded " + str(len(df)) + " logs. There were " + str(number_of_logs - len(df)) + " logs that were already solved, therefore they are not loaded.")
 
-def populate_logs():
-    # Load data
-    df = pd.read_excel("repos/builds.xlsx")
-
-    # Add column "Solved" if not present, default to False
-    if "Solved" not in df.columns:
-        df["Solved"] = False
-    x = df["Solved"]
-    # Only keep the logs of the failures
-    df = df[df["Outcome"] == "Failure"]
-    len_df = len(df)
-    df = df.drop_duplicates()
-    print("Removed " + str(len_df - len(df)) + " duplicates")
-
-    # Extract logs
-    logs = []
-    for idx, row in df.iterrows():
-        logpath = row["Build log"]
-        try:
-            # Construct the file path
-            with open("repos/" + logpath, encoding='UTF-8') as f:
-                logs.append(f.read())
-        #if you cannot find the log, we can assume the user considers that type of failure as solved
-        except FileNotFoundError:
-            df.at[idx, "Solved"] = True
-            logs.append(None)
-
-    # Save logs
-    df["logs"] = logs
-    df.to_csv("repos/failures.csv")
 
 #FOR BAZEL
 def extract_stacktrace_bazel(row):
