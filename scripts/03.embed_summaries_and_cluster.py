@@ -69,7 +69,7 @@ def get_build_type(row):
         return "unknown/other"
 
 if __name__ == "__main__":
-    # embed_summaries_cluster()
+    embed_summaries_cluster()
 
     # plot and show results
     # Load intermediate result
@@ -164,7 +164,14 @@ if __name__ == "__main__":
 
             // Hide the tooltip when clicking outside of the plot area
             document.addEventListener('click', function(event) {{
-                if (!scatterPlot.contains(event.target)) {{
+                if (!scatterPlot.contains(event.target) && !tooltip.contains(event.target)) {{
+                    tooltip.style.display = 'none';
+                }}
+            }});
+        
+            // Hide the tooltip when pressing the Escape key
+            document.addEventListener('keydown', function(event) {{
+                if (event.key === 'Escape') {{
                     tooltip.style.display = 'none';
                 }}
             }});
