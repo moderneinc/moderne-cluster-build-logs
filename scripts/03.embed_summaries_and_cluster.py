@@ -69,7 +69,7 @@ def get_build_type(row):
         return "unknown/other"
 
 if __name__ == "__main__":
-    embed_summaries_cluster()
+    # embed_summaries_cluster()
 
     # plot and show results
     # Load intermediate result
@@ -116,8 +116,70 @@ if __name__ == "__main__":
         symbol_map={"maven": "circle", "gradle": "star", "bazel": "diamond", "dotnet": "hexagon", "unknown/other": "cross"},
     )
 
-    # Save scatter plot
-    fig.write_html("clusters_scatter.html")
+    # Convert the DataFrame to an HTML table format with embedded JavaScript for interactivity
+    table = df.drop(columns=["Build log", "logs", "embds_summaries", "kmeans_summary", "x", "y", "Cluster label", "Build time (sec)", "Maven version", "Gradle version", "Bazel version", "Dotnet version", "Total sources"]) # Remove unnecessary columns
+    table_html = table.to_html(classes="table table-striped", index=False, table_id="dataTable")
+
+    # Save the scatter plot and table to HTML with embedded JavaScript
+    html_content = f"""
+<html>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Tooltip styling */
+        #hover-tooltip {{
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+            display: none; /* Initially hidden */
+            z-index: 10;
+        }}
+    </style>
+</head>
+<body>
+    
+    {fig.to_html(full_html=False, include_plotlyjs=False)}
+
+    <!-- Tooltip div for persistent hover data -->
+    <div id="hover-tooltip"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {{
+            var scatterPlot = document.getElementsByClassName('plotly-graph-div')[0];
+            var tooltip = document.getElementById('hover-tooltip');
+
+            scatterPlot.on('plotly_click', function(data) {{
+                // Display tooltip near the clicked point
+                tooltip.innerHTML = `
+                    <strong>Path:</strong> ${{data.points[0].customdata[0]}}<br>
+                    <strong>Branch:</strong> ${{data.points[0].customdata[1]}}<br>
+                    <strong>Extracted logs:</strong> ${{data.points[0].customdata[2]}}
+                `;
+                tooltip.style.display = 'block';
+                tooltip.style.left = data.event.pageX + 10 + 'px';
+                tooltip.style.top = data.event.pageY + 10 + 'px';
+            }});
+
+            // Hide the tooltip when clicking outside of the plot area
+            document.addEventListener('click', function(event) {{
+                if (!scatterPlot.contains(event.target)) {{
+                    tooltip.style.display = 'none';
+                }}
+            }});
+        }});
+    </script>
+</body>
+</html>
+"""
+
+
+
+    # Save HTML to file
+    with open("clusters_scatter.html", "w") as f:
+        f.write(html_content)
+
 
 
     # Function to create dropdown options
