@@ -150,16 +150,22 @@ if __name__ == "__main__":
         elif not pd.isna(row["Dotnet version"]):
             extract_stacktraces.append(extract_stacktrace_dotnet(row))
         else:
-            #If unsure what type of build, try all of them and keep the first one
-            extracted_as_gradle = extract_stacktrace_gradle(row)
-            extracted_as_maven = extract_stacktrace_maven(row)
-            extracted_as_bazel = extract_stacktrace_bazel(row)
-            extracted_as_dotnet = extract_stacktrace_dotnet(row)
+            # Try each build type and keep the first successful extraction
+            extractors = [
+                extract_stacktrace_gradle,
+                extract_stacktrace_maven,
+                extract_stacktrace_bazel,
+                extract_stacktrace_dotnet
+            ]
 
-            for extracted in [extracted_as_gradle, extracted_as_maven, extracted_as_bazel, extracted_as_dotnet]:
-                if extracted is not None:
-                    extract_stacktraces.append(extracted)
-                    break
+            for extractor in extractors:
+                try:
+                    extracted = extractor(row)
+                    if extracted is not None:
+                        extract_stacktraces.append(extracted)
+                        break
+                except IndexError:
+                    continue
             
             
     # Save summaries
