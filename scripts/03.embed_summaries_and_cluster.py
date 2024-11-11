@@ -191,7 +191,7 @@ if __name__ == "__main__":
 
     # Function to create dropdown options
     def create_dropdown_options(data, cluster_id):
-        samples = data[data["kmeans_summary"] == str(cluster_id)]["Extracted logs"]
+        samples = data[data["Cluster label"] == str(cluster_id)]["Extracted logs"]
         samples = [str(sample).replace('\n', '<br>') for sample in samples]  # Replace \n with <br> for HTML formatting
         return samples
 
@@ -217,10 +217,10 @@ if __name__ == "__main__":
     # Generate dropdown options for Plotly
     dropdown_buttons = [
         {
-            "label": f"Logs for cluster ID {cluster_id}. Total Count : {len(df[df['kmeans_summary'] == str(cluster_id)])}",
+            "label": f"Logs for cluster ID {cluster_id}. Total Count : {len(df[df['Cluster label'] == str(cluster_id)])}",
             "method": "update",
             "args": [
-                {"visible": [i == cluster_id for i in range(best_k)]},
+                {"visible": [str(i) == str(cluster_id) for i in range(best_k)]},
             ]
         } for cluster_id in range(best_k)
     ]
