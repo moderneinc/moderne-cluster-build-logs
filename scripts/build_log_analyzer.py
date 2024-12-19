@@ -42,8 +42,8 @@ def wrap_line(text, max_len=200, max_lines=8):
 
 class BuildLogAnalyzer:
     def __init__(self, output_dir="output"):
-        self.tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-large-en-v1.5")
-        self.model = AutoModel.from_pretrained("BAAI/bge-large-en-v1.5")
+        self.tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-small-en-v1.5")
+        self.model = AutoModel.from_pretrained("BAAI/bge-small-en-v1.5")
         self.model.eval()
         self.random_state = 42
         self.data_frames: pd.DataFrame | None = None
@@ -148,6 +148,7 @@ class BuildLogAnalyzer:
 
         with open(self.final_cluster_html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
+        print(f"Scatter plot analysis saved to {self.final_cluster_html_path}")
 
     def _create_cluster_logs(self):
         df = self.data_frames
@@ -217,6 +218,7 @@ class BuildLogAnalyzer:
             data.visible = i == 0
 
         fig.write_html(self.final_logs_html_path)
+        print(f"Cluster logs saved to {self.final_logs_html_path}")
 
     def analyze_and_visualize_clusters(self):
         self._embed_summaries_cluster()
@@ -262,7 +264,7 @@ class BuildLogAnalyzer:
         df = df[df["Solved"] == False]
         self.data_frames = df
         print(
-            "Succesfully loaded "
+            "Successfully loaded "
             + str(len(df))
             + " logs. There were "
             + str(number_of_logs - len(df))
@@ -414,5 +416,5 @@ class BuildLogAnalyzer:
                 print("Failure to extract log's stack trace from ", str(row["Path"]))
                 any_failures = True
         if not any_failures:
-            print("Succesfully extracted logs for", len(df), self.output_dir)
+            print("Successfully extracted logs for", len(df), self.output_dir)
         self.data_frames = df

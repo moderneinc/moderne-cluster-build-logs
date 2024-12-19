@@ -1,4 +1,5 @@
 import os
+import sys
 import zipfile
 
 import requests
@@ -47,10 +48,10 @@ class LogDownloader:
         # Remove downloaded zip file
         os.remove(local_filename)
 
-    def _download_logs_interactive(self, path=None):
+    def _download_logs_interactive(self, path=""):
         print(
             f"Fetching files from {self.url}/api/storage/{self.repository_path}/{path}"
-            if path
+            if path != ""
             else f"Fetching files from {self.url}/api/storage/{self.repository_path}"
         )
         items = self._collect_items(
@@ -92,12 +93,13 @@ class LogDownloader:
                 print(
                     "Invalid choice. Please rerun the script and select a number from the list."
                 )
+                self._download_logs_interactive(path)
         except ValueError:
             print("Invalid input. Please enter a number.")
 
-    def _collect_items(self, url, path=None):
+    def _collect_items(self, url, path=""):
         results = []
-        data = self._fetch_directory_contents(f"{url}/{path}" if path else url)
+        data = self._fetch_directory_contents(f"{url}/{path}" if path != "" else url)
         if data is None:
             return results
 
@@ -120,7 +122,7 @@ class LogDownloader:
             return response.json()
         except requests.RequestException as e:
             print(f"Failed to fetch directory contents from {url}: {e}")
-            return None
+            sys.exit(1)
 
     def _download_file(self, url, local_filename):
         try:
@@ -132,7 +134,7 @@ class LogDownloader:
             return local_filename
         except requests.RequestException as e:
             print(f"Failed to download file from {url}: {e}")
-            return None
+            sys.exit(1)
 
     def _unzip_file(self, zip_path, extract_to):
         try:

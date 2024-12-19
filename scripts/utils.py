@@ -4,8 +4,9 @@ import shutil
 
 def prepare_directory(directory):
     if os.path.exists(directory):
-        shutil.rmtree(directory)
-    os.makedirs(directory)
+        shutil.rmtree(directory, ignore_errors=True)
+    else:
+        os.makedirs(directory)
 
 
 def copy_directory(source, destination):

@@ -23,7 +23,7 @@ def main(url, repository_path, log_file, username, password, logs_dir, output_di
     analyzer.analyze_and_visualize_clusters()
 
 
-if __name__ == "__main__":
+def analyze_logs():
     parser = argparse.ArgumentParser(
         description="Download and unzip ingest samples. If no url is provided, it will prompt the user to select a file.",
     )
@@ -78,3 +78,7 @@ if __name__ == "__main__":
         args.logs,
         args.output_dir,
     )
+
+
+if __name__ == "__main__":
+    analyze_logs()
