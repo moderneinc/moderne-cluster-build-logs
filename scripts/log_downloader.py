@@ -15,14 +15,14 @@ class LogDownloader:
 
     def download_logs(self):
         if self.log_file:
-            self.download_and_unzip_file(
+            self._download_and_unzip_file(
                 f"{self.url}/{self.repository_path}/{self.log_file}", "ingest.zip"
             )
         else:
-            self.download_logs_interactive(".", self.output_dir)
+            self._download_logs_interactive()
 
-    def download_and_unzip_file(self, url, file_name):
-        local_filename = self.download_file(url, file_name)
+    def _download_and_unzip_file(self, url, file_name):
+        local_filename = self._download_file(url, file_name)
         if not local_filename:
             return
 
@@ -30,7 +30,7 @@ class LogDownloader:
         extract_to = self.output_dir
         prepare_directory(extract_to)
 
-        self.unzip_file(local_filename, extract_to)
+        self._unzip_file(local_filename, extract_to)
 
         # Count files in repos
         file_count = len(
@@ -47,11 +47,13 @@ class LogDownloader:
         # Remove downloaded zip file
         os.remove(local_filename)
 
-    def download_logs_interactive(self, path, output_dir):
+    def _download_logs_interactive(self, path=None):
         print(
             f"Fetching files from {self.url}/api/storage/{self.repository_path}/{path}"
+            if path
+            else f"Fetching files from {self.url}/api/storage/{self.repository_path}"
         )
-        items = self.collect_items(
+        items = self._collect_items(
             f"{self.url}/api/storage/{self.repository_path}", path
         )
         sorted_items = sorted(items, key=lambda x: x["name"])[:20]
@@ -63,13 +65,13 @@ class LogDownloader:
         if len(sorted_items) == 1:
             selected_item = sorted_items[0]
             if selected_item["name"].endswith(".zip"):
-                self.download_and_unzip_file(
+                self._download_and_unzip_file(
                     f"{self.url}/{self.repository_path}/{selected_item['path']}",
                     selected_item["name"],
                 )
                 return
             else:
-                self.download_logs_interactive(selected_item["path"], output_dir)
+                self._download_logs_interactive(selected_item["path"])
                 return
 
         for idx, file in enumerate(sorted_items, 1):
@@ -80,12 +82,12 @@ class LogDownloader:
             if 1 <= choice <= len(sorted_items):
                 selected_item = sorted_items[choice - 1]
                 if selected_item["name"].endswith(".zip"):
-                    self.download_and_unzip_file(
+                    self._download_and_unzip_file(
                         f"{self.url}/{self.repository_path}/{selected_item['path']}",
                         selected_item["name"],
                     )
                 else:
-                    self.download_logs_interactive(selected_item["path"], output_dir)
+                    self._download_logs_interactive(selected_item["path"])
             else:
                 print(
                     "Invalid choice. Please rerun the script and select a number from the list."
@@ -93,9 +95,9 @@ class LogDownloader:
         except ValueError:
             print("Invalid input. Please enter a number.")
 
-    def collect_items(self, url, path):
+    def _collect_items(self, url, path=None):
         results = []
-        data = self.fetch_directory_contents(f"{url}/{path}")
+        data = self._fetch_directory_contents(f"{url}/{path}" if path else url)
         if data is None:
             return results
 
@@ -111,7 +113,7 @@ class LogDownloader:
 
         return results
 
-    def fetch_directory_contents(self, url):
+    def _fetch_directory_contents(self, url):
         try:
             response = requests.get(url, auth=self.auth, timeout=30)
             response.raise_for_status()
@@ -120,7 +122,7 @@ class LogDownloader:
             print(f"Failed to fetch directory contents from {url}: {e}")
             return None
 
-    def download_file(self, url, local_filename):
+    def _download_file(self, url, local_filename):
         try:
             with requests.get(url, auth=self.auth, stream=True, timeout=30) as r:
                 r.raise_for_status()
@@ -132,7 +134,7 @@ class LogDownloader:
             print(f"Failed to download file from {url}: {e}")
             return None
 
-    def unzip_file(self, zip_path, extract_to):
+    def _unzip_file(self, zip_path, extract_to):
         try:
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(extract_to)

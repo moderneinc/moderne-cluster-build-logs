@@ -12,22 +12,45 @@ from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 
 
+def get_build_type(row):
+    if not pd.isna(row["Maven version"]):
+        return "maven"
+    elif not pd.isna(row["Gradle version"]):
+        return "gradle"
+    elif not pd.isna(row["Bazel version"]):
+        return "bazel"
+    elif not pd.isna(row["Dotnet version"]):
+        return "dotnet"
+    else:
+        return "unknown/other"
+
+
+def wrap_line(text, max_len=200, max_lines=8):
+    lines = text.split("\n")
+    wrapped_lines = []
+    for line in lines:
+        while len(line) > max_len:
+            wrapped_lines.append(line[:max_len])
+            line = line[max_len:]
+        wrapped_lines.append(line)
+        if len(wrapped_lines) >= max_lines:
+            wrapped_lines = wrapped_lines[:max_lines]
+            wrapped_lines[-1] += "(...)"
+            break
+    return "<br>".join(wrapped_lines)
+
+
 class BuildLogAnalyzer:
     def __init__(self, output_dir="output"):
         self.tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-large-en-v1.5")
         self.model = AutoModel.from_pretrained("BAAI/bge-large-en-v1.5")
         self.model.eval()
         self.random_state = 42
-        self.output_dir = output_dir
+        self.data_frames: pd.DataFrame | None = None
 
+        self.output_dir = output_dir
         self.build_manifest_path = os.path.join(output_dir, "builds.xlsx")
         self.failures_path = os.path.join(output_dir, "failures.csv")
-        self.pickle_with_logs_path = os.path.join(output_dir, "df_with_logs.pkl")
-        self.pickle_summaries_path = os.path.join(output_dir, "df_with_summaries.pkl")
-        self.pickle_embeddings_clusters_path = os.path.join(
-            output_dir, "df_with_embeddings_clusters.pkl"
-        )
-        self.final_pickle_path = os.path.join(output_dir, "final_df.pkl")
         self.final_cluster_html_path = os.path.join(output_dir, "clusters_scatter.html")
         self.final_logs_html_path = os.path.join(output_dir, "clusters_logs.html")
 
@@ -41,36 +64,8 @@ class BuildLogAnalyzer:
             embedding = torch.nn.functional.normalize(embedding, p=2, dim=1)[0]
             return embedding.tolist()
 
-    @staticmethod
-    def get_build_type(row):
-        if not pd.isna(row["Maven version"]):
-            return "maven"
-        elif not pd.isna(row["Gradle version"]):
-            return "gradle"
-        elif not pd.isna(row["Bazel version"]):
-            return "bazel"
-        elif not pd.isna(row["Dotnet version"]):
-            return "dotnet"
-        else:
-            return "unknown/other"
-
-    @staticmethod
-    def wrap_line(text, max_len=200, max_lines=8):
-        lines = text.split("\n")
-        wrapped_lines = []
-        for line in lines:
-            while len(line) > max_len:
-                wrapped_lines.append(line[:max_len])
-                line = line[max_len:]
-            wrapped_lines.append(line)
-            if len(wrapped_lines) >= max_lines:
-                wrapped_lines = wrapped_lines[:max_lines]
-                wrapped_lines[-1] += "(...)"
-                break
-        return "<br>".join(wrapped_lines)
-
     def _embed_summaries_cluster(self):
-        df = pd.read_pickle(self.pickle_summaries_path)
+        df = self.data_frames
         embds_summaries = [
             self.get_embedding(summary) for summary in tqdm(df["Extracted logs"])
         ]
@@ -101,19 +96,19 @@ class BuildLogAnalyzer:
         df["x"] = indices[:, 0]
         df["y"] = indices[:, 1]
 
-        df.to_pickle(self.pickle_embeddings_clusters_path)
-        return df
+        self.data_frames = df
 
-    def _create_scatter_plot(self, df):
+    def _create_scatter_plot(self):
+        df = self.data_frames
         best_k = df["kmeans_summary"].nunique()
         df["Cluster label"] = pd.Categorical(
             df["kmeans_summary"].astype(str),
             categories=[str(i) for i in range(best_k)],
             ordered=True,
         )
-        df["Build"] = df.apply(lambda row: self.get_build_type(row), axis=1)
+        df["Build"] = df.apply(lambda row: get_build_type(row), axis=1)
         df["Extracted logs"] = df["Extracted logs"].apply(
-            lambda row: self.wrap_line(str(row))
+            lambda row: wrap_line(str(row))
         )
 
         fig = px.scatter(
@@ -154,7 +149,8 @@ class BuildLogAnalyzer:
         with open(self.final_cluster_html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-    def _create_cluster_logs(self, df):
+    def _create_cluster_logs(self):
+        df = self.data_frames
         best_k = df["kmeans_summary"].nunique()
 
         def create_dropdown_options(data, cluster_id):
@@ -223,14 +219,9 @@ class BuildLogAnalyzer:
         fig.write_html(self.final_logs_html_path)
 
     def analyze_and_visualize_clusters(self):
-        df = self._embed_summaries_cluster()
-        self._create_scatter_plot(
-            df,
-        )
-        self._create_cluster_logs(
-            df,
-        )
-        df.to_pickle(self.final_pickle_path)
+        self._embed_summaries_cluster()
+        self._create_scatter_plot()
+        self._create_cluster_logs()
 
     def process_failure_logs(self):
         # Load data
@@ -269,7 +260,7 @@ class BuildLogAnalyzer:
                 ).read()
         # only keep the logs of the failures that haven't been solved yet
         df = df[df["Solved"] == False]
-        df.to_pickle(self.pickle_with_logs_path)
+        self.data_frames = df
         print(
             "Succesfully loaded "
             + str(len(df))
@@ -387,7 +378,7 @@ class BuildLogAnalyzer:
 
     def extract_failure_stacktraces(self):
         # Load intermediate result
-        df = pd.read_pickle(self.pickle_with_logs_path)
+        df = self.data_frames
         extract_stacktraces = []
         for row in df.iloc:
             if not pd.isna(row["Maven version"]):
@@ -424,5 +415,4 @@ class BuildLogAnalyzer:
                 any_failures = True
         if not any_failures:
             print("Succesfully extracted logs for", len(df), self.output_dir)
-        df.to_pickle(self.pickle_summaries_path)
-        return df
+        self.data_frames = df
