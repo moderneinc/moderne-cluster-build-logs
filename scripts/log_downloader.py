@@ -3,7 +3,7 @@ import sys
 import zipfile
 
 import requests
-from utils import prepare_directory
+from utils import normalize_url, prepare_directory
 
 
 class LogDownloader:
@@ -49,13 +49,13 @@ class LogDownloader:
         os.remove(local_filename)
 
     def _download_logs_interactive(self, path=""):
-        print(
-            f"Fetching files from {self.url}/api/storage/{self.repository_path}/{path}"
-            if path != ""
-            else f"Fetching files from {self.url}/api/storage/{self.repository_path}"
+        fetching_from_url = normalize_url(
+            f"{self.url}/api/storage/{self.repository_path}/{path}"
         )
+        print(fetching_from_url)
+
         items = self._collect_items(
-            f"{self.url}/api/storage/{self.repository_path}", path
+            normalize_url(f"{self.url}/api/storage/{self.repository_path}"), path
         )
         sorted_items = sorted(items, key=lambda x: x["name"])[:20]
 
@@ -67,7 +67,9 @@ class LogDownloader:
             selected_item = sorted_items[0]
             if selected_item["name"].endswith(".zip"):
                 self._download_and_unzip_file(
-                    f"{self.url}/{self.repository_path}/{selected_item['path']}",
+                    normalize_url(
+                        f"{self.url}/{self.repository_path}/{selected_item['path']}"
+                    ),
                     selected_item["name"],
                 )
                 return
@@ -84,7 +86,9 @@ class LogDownloader:
                 selected_item = sorted_items[choice - 1]
                 if selected_item["name"].endswith(".zip"):
                     self._download_and_unzip_file(
-                        f"{self.url}/{self.repository_path}/{selected_item['path']}",
+                        normalize_url(
+                            f"{self.url}/{self.repository_path}/{selected_item['path']}"
+                        ),
                         selected_item["name"],
                     )
                 else:
@@ -99,7 +103,7 @@ class LogDownloader:
 
     def _collect_items(self, url, path=""):
         results = []
-        data = self._fetch_directory_contents(f"{url}/{path}" if path != "" else url)
+        data = self._fetch_directory_contents(normalize_url(f"{url}/{path}"))
         if data is None:
             return results
 
