@@ -7,17 +7,22 @@ from log_downloader import LogDownloader
 from utils import copy_directory
 
 
-def main(url, repository_path, log_file, username, password, logs_dir, output_dir):
-    if not logs_dir:
-        log_downloader = LogDownloader(
-            url, repository_path, log_file, username, password, output_dir
-        )
-        log_downloader.download_logs()
-    else:
-        copy_directory(logs_dir, output_dir)
-
+def main(
+    url, repository_path, log_file, username, password, logs_dir, output_dir, refresh
+):
     analyzer = BuildLogAnalyzer(output_dir)
-    analyzer.process_failure_logs()
+
+    if not refresh:
+        if not logs_dir:
+            log_downloader = LogDownloader(
+                url, repository_path, log_file, username, password, output_dir
+            )
+            log_downloader.download_logs()
+        else:
+            copy_directory(logs_dir, output_dir)
+
+        analyzer.process_failure_logs()
+
     analyzer.load_failure_logs()
     analyzer.extract_failure_stacktraces()
     analyzer.analyze_and_visualize_clusters()
@@ -63,6 +68,12 @@ def analyze_logs():
     )
 
     parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Re analyze existing logs directory",
+    )
+
+    parser.add_argument(
         "--output-dir",
         default="output",
         help="Directory to store logs and results",
@@ -77,6 +88,7 @@ def analyze_logs():
         args.password,
         args.logs,
         args.output_dir,
+        args.refresh,
     )
 
 

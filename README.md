@@ -13,7 +13,7 @@ This repository will walk you through everything you need to do to perform a clu
 
 ## Setup
 
-Before you begin, you will need to complete one the setup methods in [LOCAL_INSTALL.md](LOCAL_INSTALL.md). This will ensure that you have all the necessary dependencies installed.
+Before you begin, you will need to complete one of the setup methods in [LOCAL_INSTALL.md](LOCAL_INSTALL.md). This will ensure that you have all the necessary dependencies installed.
 1. [Using System Python with `venv`](LOCAL_INSTALL.md#using-system-python-with-venv)
 2. [Using uv](LOCAL_INSTALL.md#using-uv-fast-python-package-installer) (Fast Python Package Installer)
 3. [Using DevContainer](LOCAL_INSTALL.md#using-devcontainer)
