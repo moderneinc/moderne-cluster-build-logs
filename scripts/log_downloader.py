@@ -3,6 +3,7 @@ import sys
 import zipfile
 from urllib.parse import urljoin
 
+import click
 import requests
 from utils import normalize_url, prepare_directory
 
@@ -42,7 +43,7 @@ class LogDownloader:
                 if os.path.isfile(os.path.join(extract_to, name))
             ]
         )
-        print(
+        click.echo(
             f"Extracted {file_count} file{'s' if file_count != 1 else ''} to {extract_to}"
         )
 
@@ -82,7 +83,8 @@ class LogDownloader:
             print(f"[{idx}] {file['path']}")
 
         try:
-            choice = int(input("Select an item: "))
+            choice = click.prompt("Select an item", default=1)
+
             if 1 <= choice <= len(sorted_items):
                 selected_item = sorted_items[choice - 1]
                 if selected_item["name"].endswith(".zip"):

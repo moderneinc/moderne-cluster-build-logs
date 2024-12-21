@@ -1,6 +1,7 @@
 import os
 import re
 
+import click
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -55,9 +56,18 @@ class BuildLogAnalyzer:
         self.final_logs_html_path = os.path.join(output_dir, "clusters_logs.html")
 
     def get_embedding(self, input_string):
+        if input_string is None or not isinstance(input_string, str):
+            # Return zeros for invalid input
+            return [0.0] * 384  # BGE-small model has 384 dimensions
+
+        # Clean input string
+        cleaned_input = str(input_string).strip()
+        if not cleaned_input:
+            return [0.0] * 384
+
         with torch.no_grad():
             encoded_input = self.tokenizer(
-                [input_string], padding=True, truncation=True, return_tensors="pt"
+                [cleaned_input], padding=True, truncation=True, return_tensors="pt"
             )
             model_output = self.model(**encoded_input)
             embedding = model_output[0][:, 0]
@@ -66,6 +76,13 @@ class BuildLogAnalyzer:
 
     def _embed_summaries_cluster(self):
         df = self.data_frames
+
+        # Clean and validate extracted logs
+        df["Extracted logs"] = df["Extracted logs"].apply(
+            lambda x: str(x).strip() if pd.notna(x) else ""
+        )
+
+        # Get embeddings
         embds_summaries = [
             self.get_embedding(summary) for summary in tqdm(df["Extracted logs"])
         ]
@@ -148,7 +165,9 @@ class BuildLogAnalyzer:
 
         with open(self.final_cluster_html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
-        print(f"Scatter plot analysis saved to {self.final_cluster_html_path}")
+        click.echo(
+            f"Scatter plot analysis saved to {click.format_filename(self.final_cluster_html_path)}"
+        )
 
     def _create_cluster_logs(self):
         df = self.data_frames
@@ -218,7 +237,9 @@ class BuildLogAnalyzer:
             data.visible = i == 0
 
         fig.write_html(self.final_logs_html_path)
-        print(f"Cluster logs saved to {self.final_logs_html_path}")
+        click.echo(
+            f"Cluster logs saved to {click.format_filename(self.final_logs_html_path)}"
+        )
 
     def analyze_and_visualize_clusters(self):
         self._embed_summaries_cluster()
@@ -235,17 +256,17 @@ class BuildLogAnalyzer:
             df["Solved"] = False
         len_df_before = len(df)
         df = df.drop_duplicates()
-        print("Removed " + str(len_df_before - len(df)) + " duplicates")
+        click.echo("Removed " + str(len_df_before - len(df)) + " duplicates")
         # Save logs
         df.to_csv(self.failures_path)
-        print("Created " + self.failures_path + " with " + str(len(df)) + " rows")
+        click.echo("Created " + self.failures_path + " with " + str(len(df)) + " rows")
 
     def load_failure_logs(self):
         # check if repos/failure.csv exists
-        print("Loading logs from " + self.failures_path)
+        click.echo("Loading logs from " + click.format_filename(self.failures_path))
         if not os.path.exists(self.failures_path):
             # exit
-            print("File not found: " + self.failures_path)
+            click.echo("File not found: " + self.failures_path, err=True)
             exit(1)
         df = pd.read_csv(self.failures_path)
         number_of_logs = len(df)
@@ -263,13 +284,14 @@ class BuildLogAnalyzer:
         # only keep the logs of the failures that haven't been solved yet
         df = df[df["Solved"] == False]
         self.data_frames = df
-        print(
-            "Successfully loaded "
-            + str(len(df))
-            + " logs. There were "
-            + str(number_of_logs - len(df))
-            + " logs that were already solved, therefore they are not loaded."
-        )
+
+        click.echo("Successfully loaded " + str(len(df)) + " logs.")
+        if number_of_logs > len(df):
+            click.echo(
+                "There were "
+                + str(number_of_logs - len(df))
+                + " logs that were already solved, therefore they are not loaded."
+            )
 
     def _extract_stacktrace_bazel(self, row):
         log = row["logs"]
@@ -352,7 +374,7 @@ class BuildLogAnalyzer:
             extracted_log = self._remove_lines_stacktrace_gradle(matches[-1])
             return extracted_log  # return last match
         else:
-            print("Gradle log not found for ", str(row["Path"]))
+            click.echo("Gradle log not found for ", str(row["Path"]))
             return None
 
     def _remove_lines_stacktrace_gradle(self, log):
@@ -374,7 +396,7 @@ class BuildLogAnalyzer:
             if not start_removing:
                 lines_to_keep.append(line)
         if len(lines_to_keep) == 0:
-            print("No lines left after removing stacktrace")
+            click.echo("No lines left after removing stacktrace")
             return ""
         return "\n".join(lines_to_keep)
 
@@ -413,8 +435,12 @@ class BuildLogAnalyzer:
         for row in df.iloc:
             extract_stacktrace = row["Extracted logs"]
             if extract_stacktrace is None or len(extract_stacktrace) == 0:
-                print("Failure to extract log's stack trace from ", str(row["Path"]))
+                click.echo(
+                    f"Failure to extract log's stack trace from {row['Path']}", err=True
+                )
                 any_failures = True
         if not any_failures:
-            print("Successfully extracted logs for", len(df), self.output_dir)
+            click.echo(
+                f"Successfully extracted logs for {len(df)} in {self.output_dir}"
+            )
         self.data_frames = df
