@@ -1,6 +1,7 @@
 import os
 import sys
 import zipfile
+from urllib.parse import urljoin
 
 import requests
 from utils import normalize_url, prepare_directory
@@ -17,7 +18,7 @@ class LogDownloader:
     def download_logs(self):
         if self.log_file:
             self._download_and_unzip_file(
-                f"{self.url}/{self.repository_path}/{self.log_file}", "ingest.zip"
+                urljoin(self.url, self.log_file), "ingest.zip"
             )
         else:
             self._download_logs_interactive()

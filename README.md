@@ -23,69 +23,78 @@ Before you begin, you will need to complete one of the setup methods in [LOCAL_I
 ## Instructions
 
 After [set-up / installation](LOCAL_INSTALL.md), you can run the analysis script in one of two ways: 
-1. [Using an existing build log file](#using-an-existing-build-log-file)
-2. [Downloading build logs from a Artifactory repository](#downloading-build-logs-from-an-artifactory-repository)
+1. [Collect build logs](#collecting-builds-logs)
+    1. [Using an existing build log file](#using-an-existing-build-log-file)
+    2. [Downloading build logs from a Artifactory repository](#downloading-build-logs-from-an-artifactory-repository)
+2. Analyze build logs
 
-### Using an existing build log file
+### Collecting builds logs
+#### Using an existing build log file
 
 ```bash
 # System Python with venv / DevContainer
-python script/analyze_logs.py \
-  --logs <path_to_build_logs> \
-  --output <output_directory>
+python script/analyze_logs.py analyze <output_dir> --from <path_to_build_logs> 
 
 # or using uv
-uv run script/analyze_logs.py \
-  --logs <path_to_build_logs> \
-  --output <output_directory>
+uv run script/analyze_logs.py analyze <output_dir> --from <path_to_build_logs> 
 
 # or using Docker
 docker run -rm -it \
   -v <path_to_build_logs>:/app/logs \
-  -v <path_to_output_directory>:/app/output \
+  -v <path_to_output_dir>:/app/output \
   moderne-cluster-build-logs:latest \
-  python analyze_logs.py \
-  --logs /app/logs \
-  --output /app/output
+  python analyze_logs.py analyze <path_to_output_dir> --from <path_to_build_logs> 
 ```
 
 
-### Downloading build logs from an Artifactory repository
+#### Downloading build logs from an Artifactory repository
 
 The script can also download build logs from an Artifactory repository. You will need to provide the URL, repository path, username, and password to access the logs. You can also provide a specific log file to analyze. If you do not provide a specific log file, the script will provide an interactive selection for available logs.
 
 ```bash
 # System Python with venv / DevContainer
-python script/analyze_logs.py \
+python script/analyze_logs.py download \
   --url <artifactory_url> \
   --repository-path <artifactory_repository_path_to_logs> \
   --username <artifactory_username> \
   --password <artifactory_passwd> \
-  --log-file <specific_log_file> \ # Optional
-  --output-dir ./output 
+  <path_to_output_dir>
 
 # or using uv
-uv run script/analyze_logs.py \
+uv run script/analyze_logs.py download \
   --url <artifactory_url> \
   --repository-path <artifactory_repository_path_to_logs> \
   --username <artifactory_username> \
   --password <artifactory_passwd> \
-  --log-file <specific_log_file> \ # Optional
-  --output-dir ./output 
+  <path_to_output_dir>
 
 # or using Docker
 docker run -rm -it \
   -v <path_to_output_directory>:/app/output \
   moderne-cluster-build-logs:latest \
-  python analyze_logs.py \
+  python analyze_logs.py download \
   --url <artifactory_url> \
   --repository-path <artifactory_repository_path_to_logs> \
   --username <artifactory_username> \
   --password <artifactory_passwd> \
-  --log-file <specific_log_file> \ # Optional
-  --output-dir /app/output
+  <path_to_output_dir>
 ```
 
+### Analyze build logs
+
+```bash
+# System Python with venv / DevContainer
+python script/analyze_logs.py analyze <output_dir>
+
+# or using uv
+uv run script/analyze_logs.py analyze <output_dir>
+
+# or using Docker
+docker run -rm -it \
+  -v <path_to_output_dir>:/app/output \
+  moderne-cluster-build-logs:latest \
+  python analyze_logs.py analyze <path_to_output_dir>
+```
 
 ## Example results
 
