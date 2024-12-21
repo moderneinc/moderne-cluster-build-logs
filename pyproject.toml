@@ -1,0 +1,22 @@
+[project]
+name = "moderne-cluster-build-logs"
+version = "2.0.0"
+description = "A project for building and analyzing logs from the Moderne mass ingest process."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "llvmlite>=0.43.0",
+    "numpy",
+    "openpyxl>=3.1.5",
+    "pandas>=2.2.3",
+    "plotly>=5.24.1",
+    "requests>=2.32.3",
+    "scikit-learn>=1.6.0",
+    "torch==2.4.0",
+    "tqdm>=4.67.1",
+    "transformers==4.43.3",
+    "umap-learn",
+    "click>=8.1.7",
+]
+[tool.uv]
+constraint-dependencies = ["llvm>0.43.0","numba>=0.60.0"]
