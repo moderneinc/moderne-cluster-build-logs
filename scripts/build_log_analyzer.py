@@ -374,7 +374,7 @@ class BuildLogAnalyzer:
             extracted_log = self._remove_lines_stacktrace_gradle(matches[-1])
             return extracted_log  # return last match
         else:
-            click.echo("Gradle log not found for ", str(row["Path"]))
+            click.echo(f"Gradle log not found for {str(row["Path"])}")
             return None
 
     def _remove_lines_stacktrace_gradle(self, log):

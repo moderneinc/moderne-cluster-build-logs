@@ -23,8 +23,9 @@ Before you begin, you will need to complete one of the setup methods in [LOCAL_I
 ## Instructions
 
 After [set-up / installation](LOCAL_INSTALL.md), you can run the analysis script in one of two ways:
+
 1. [Analyze build logs directly](#1-analyze-build-logs-directly)
-2.[ Download build logs from an Artifactory repository](#2-download-build-logs-from-an-artifactory-repository) (optional)
+2. [ Download build logs from an Artifactory repository](#2-download-build-logs-from-an-artifactory-repository) (optional)
 
 ### 1. Analyze build logs directly
 If you already have the build log files locally on your machine, you can analyze them in-place using the `analyze` subcommand. Here's how to run it:

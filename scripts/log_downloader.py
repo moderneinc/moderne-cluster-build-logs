@@ -19,7 +19,7 @@ class LogDownloader:
     def download_logs(self):
         if self.log_file:
             self._download_and_unzip_file(
-                urljoin(self.url, self.log_file), "ingest.zip"
+                normalize_url(f"{self.url}/{self.log_file}"), "ingest.zip"
             )
         else:
             self._download_logs_interactive()
