@@ -23,7 +23,7 @@ This project requires Python 3.12.x and manages dependencies using [`pyproject.t
 
 4. Install dependencies:
   ```bash
-  pip install -r pyproject.toml
+  pip install .
   ```
 
 ## Using [uv](https://docs.astral.sh/uv/) (Fast Python Package Installer)
@@ -35,9 +35,11 @@ This project requires Python 3.12.x and manages dependencies using [`pyproject.t
 
 2. Create a virtual environment and install dependencies:
   ```bash
+  uv sync
+  # or
   uv venv
-  source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-  uv pip install -r pyproject.toml
+  source .venv/bin/activate
+  uv pip install .
   ```
 
 ## Using DevContainer
