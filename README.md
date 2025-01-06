@@ -119,12 +119,6 @@ python scripts/03.embed_summaries_and_cluster.py
 
 Once you've run the two scripts, you should find that a `clusters_scatter.html` and `clusters_logs.html` file were produced. Open those in the browser of your choice to get detailed information about your build failures.
 
-```bash
-python -m http.server 8080
-```
-
-Success! These can now be viewed in your browser at http://localhost:8080/clusters_scatter.html and http://localhost:8080/clusters_logs.html.
-
 ### Optional: Marking a certain repository as "solved"
 
 As you work through the build failures, you might want to exclude logs that have been marked as solved from the clustering process. To do this, open the `failures.csv` file and set the `Solved` column to `True` for the logs you want to ignore. Alternatively, you can delete or rename the `build.log` file for that repository. After making these changes, you can re-run the clustering process by re-starting at [step 2](#step-2). You may repeat steps [2](#step-2) and [3](#step-3) repeatedly to update the graphics as many times as needed.
