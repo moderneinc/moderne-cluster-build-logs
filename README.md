@@ -1,133 +1,126 @@
 # Clustering build logs to analyze common build issues
 
-When your company attempts to build [Lossless Semantic Trees (LSTs)](https://docs.moderne.io/administrator-documentation/moderne-platform/references/concepts/lossless-semantic-trees) for all of your repositories, you may find that some of them do not build successfully. While you _could_ go through each of those by hand and attempt to figure out common patterns, there is a better way: [cluster analysis](https://en.wikipedia.org/wiki/Cluster_analysis).
+When your company attempts to build [Lossless Semantic Trees (LSTs)](https://docs.moderne.io/administrator-documentation/moderne-platform/references/lossless-semantic-trees/) for all of your repositories, you may find that some of them do not build successfully. While you _could_ go through each of those by hand and attempt to figure out common patterns, there is a better way: [cluster analysis](https://en.wikipedia.org/wiki/Cluster_analysis).
 
-You can think of cluster analysis as a way of grouping data into easily identifiable chunks. In other words, it can take in all of your build failures and then find what issues are the most common – so you can prioritize what to fix first.
+You can think of cluster analysis as a way of grouping data into easily identifiable chunks. In other words, it can take in all of your build failures and then find what issues are the most common - so you can prioritize what to fix first.
 
 This repository will walk you through everything you need to do to perform a cluster analysis on your build failures. By the end, you will have produced two HTML files:
-1. [one that visually displays the clusters](#analysis_build_failureshtml)
-2. [one that contains samples for each cluster](#cluster_id_reasonhtml). 
-
-NOTE: Clustering is currently limited to Maven, Gradle, .Net, and Bazel builds because our heuristic-based extraction of build errors is specific to these build types. Although build failures for other types won’t cause error when clustering, the heuristic extraction may overlook valuable parts of the stack trace.
-
-## Prerequisites
+1. [one that visually displays the clusters](#clusters_scatterhtml)
+2. [one that contains samples for each cluster](#cluster_logshtml). 
 
 > [!NOTE]
-> This repository contains a devcontainer specification, it is the recommended path to get setup as it ensures a consistent developer experience. If you so choose, you can
-install the necessary components locally. Running without docker might be faster, if your local machine has GPU or metal support. See [LOCAL_INSTALL.md](/LOCAL_INSTALL.md) for 
-how to get started.
+> Clustering is currently limited to Maven, Gradle, .Net, and Bazel builds because our heuristic-based extraction of build errors is specific to these build types. Although build failures for other types won't cause error when clustering, the heuristic extraction may overlook valuable parts of the stack trace.
 
-Please ensure you have the following tools installed on your system:
+## Setup
 
-* A Devcontainer compatible client (GitHub Codespaces, GitPod, DevPod, Docker Desktop, Visual Studio Code, etc)
-* Optional:
-  * [Git](https://git-scm.com/downloads)
+Before you begin, you will need to complete one of the setup methods in [LOCAL_INSTALL.md](LOCAL_INSTALL.md). This will ensure that you have all the necessary dependencies installed.
+1. [Using System Python with `venv`](LOCAL_INSTALL.md#using-system-python-with-venv)
+2. [Using uv](LOCAL_INSTALL.md#using-uv-fast-python-package-installer) (Fast Python Package Installer)
+3. [Using DevContainer](LOCAL_INSTALL.md#using-devcontainer)
+4. [Using Docker](LOCAL_INSTALL.md#using-docker)
 
 
 ## Instructions
 
-### Clone this project
+After [set-up / installation](LOCAL_INSTALL.md), you can run the analysis script in one of two ways:
 
-Most Devcontainer clients will perform the clone on your behalf as well as initializing the workspace for you. If you specific client requires you to clone the workspace locally first, then you will need to perform that task using the following.
+1. [Analyze build logs directly](#1-analyze-build-logs-directly)
+2. [ Download build logs from an Artifactory repository](#2-download-build-logs-from-an-artifactory-repository) (optional)
 
-```bash
-git clone git@github.com:moderneinc/moderne-cluster-build-logs.git
-cd moderne-cluster-build-logs
-```
-
-### Gather build logs
-
-In order to perform an analysis on your build logs, all of them need to be copied over to this directory (`Clustering`). Please ensure that they are copied over inside a folder named `repos`. 
-
-You will also need a `build.xlsx` file that provides details about the builds such as where the build logs are located, what the outcome was, and what the path to the project is. This file should exist inside of `repos` directory.
-
-Here is an example of what your directory should be look like if everything was set up correctly:
-
-```
-moderne-cluster-build-logs
-│
-├───scripts
-│       (4 files)
-│
-└───repos
-    │   builds.xlsx
-    │
-    ├───Org1
-    │   ├───Repo1
-    │   │   └───main
-    │   │           build.log
-    │   │
-    │   └───Repo2
-    │       └───master
-    │               build.log
-    │
-    ├───Org2
-    │   ├───Repo1
-    │   │   └───main
-    │   │           build.log
-    │   │
-    │   └───Repo2
-    │       └───master
-    │               build.log
-    │
-    └───Org3
-        └───Repo1
-            └───main
-                    build.log
-```
-
-
-#### Using Moderne mass ingest logs
-
-If you want to use Moderne's mass ingest logs to run this scripts, you may use the following script to download a sample.
+### 1. Analyze build logs directly
+If you already have the build log files locally on your machine, you can analyze them in-place using the `analyze` subcommand. Here's how to run it:
 
 ```bash
-python scripts/00.download_ingest_samples.py
+python script/analyze_logs.py analyze <output_dir>
 ```
 
-You will be prompted which of the slices you want to download. Enter the corresponding number and press `Enter`.
-
-
-### Run the scripts
-
-> [!WARNING]
-> Please note these scripts won't function correctly if you haven't copied over the logs and `build.xlsx` file into the `repos` directory you're working out of.
-
-**Run the following scripts in order**:
-#### Step 1
-The first time you run this script, you must first run `01.extract_failures.py` to extract only the logpaths for the failed build stacktraces.
+<details>
+<summary>Using <code>uv</code></summary>
 
 ```bash
-python scripts/01.extract_failures.py
+uv run script/analyze_logs.py analyze <output_dir>
 ```
+</details>
 
-#### Step 2
-Load the logs and extract relevant error messages and stacktraces from the logs: 
+<details>
+<summary>Using Docker</summary>
 
 ```bash
-python scripts/02.load_logs_and_extract.py
+docker run --rm -it \
+  -v <path_to_output_dir>:/app/output \
+  moderne-cluster-build-logs:latest \
+  python analyze_logs.py analyze /app/output
 ```
+</details>
 
-#### Step 3
-Embed logs and cluster:
+#### Analysis with `--from` option
+If your logs are located in a different directory, use the `--from` option to specify the path to your local log directory.
+
 
 ```bash
-python scripts/03.embed_summaries_and_cluster.py
+python script/analyze_logs.py analyze <output_dir> --from <path_to_build_logs>
 ```
 
-### Analyze the results
-
-Once you've run the two scripts, you should find that a `clusters_scatter.html` and `clusters_logs.html` file were produced. Open those in the browser of your choice to get detailed information about your build failures.
+<details>
+<summary>Using <code>uv</code></summary>
 
 ```bash
-python -m http.server 8080
+uv run script/analyze_logs.py analyze <output_dir> --from <path_to_build_logs>
+```
+</details>
+
+<details>
+<summary>Using Docker</summary>
+
+```bash
+docker run --rm -it \
+  -v <path_to_build_logs>:/app/logs \
+  -v <path_to_output_dir>:/app/output \
+  moderne-cluster-build-logs:latest \
+  python analyze_logs.py analyze /app/output --from /app/logs
+```
+</details>
+
+### 2. Download build logs from an Artifactory repository
+
+```bash
+python script/analyze_logs.py download \
+  --url <artifactory_url> \
+  --repository-path <artifactory_repository_path_to_logs> \
+  --username <artifactory_username> \
+  --password <artifactory_passwd> \
+  <path_to_output_dir>
 ```
 
-Success! These can now be viewed in your browser at http://localhost:8080/clusters_scatter.html and http://localhost:8080/clusters_logs.html.
+<details>
+<summary>Using <code>uv</code></summary>
 
-### Optional: Marking a certain repository as "solved"
+```bash
+uv run script/analyze_logs.py download \
+  --url <artifactory_url> \
+  --repository-path <artifactory_repository_path_to_logs> \
+  --username <artifactory_username> \
+  --password <artifactory_passwd> \
+  <path_to_output_dir>
+```
+</details>
 
-As you work through the build failures, you might want to exclude logs that have been marked as solved from the clustering process. To do this, open the `failures.csv` file and set the `Solved` column to `True` for the logs you want to ignore. Alternatively, you can delete or rename the `build.log` file for that repository. After making these changes, you can re-run the clustering process by re-starting at [step 2](#step-2). You may repeat steps [2](#step-2) and [3](#step-3) repeatedly to update the graphics as many times as needed.
+<details>
+<summary>Using Docker</summary>
+
+```bash
+docker run -rm -it \
+  -v <path_to_output_directory>:/app/output \
+  moderne-cluster-build-logs:latest \
+  python analyze_logs.py download \
+  --url <artifactory_url> \
+  --repository-path <artifactory_repository_path_to_logs> \
+  --username <artifactory_username> \
+  --password <artifactory_passwd> \
+  <path_to_output_dir>
+```
+</details>
+
 
 ## Example results
 
