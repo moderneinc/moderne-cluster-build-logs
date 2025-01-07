@@ -31,14 +31,14 @@ After [set-up / installation](LOCAL_INSTALL.md), you can run the analysis script
 If you already have the build log files locally on your machine, you can analyze them in-place using the `analyze` subcommand. Here's how to run it:
 
 ```bash
-python script/analyze_logs.py analyze <output_dir>
+python scripts/analyze_logs.py analyze <output_dir>
 ```
 
 <details>
 <summary>Using <code>uv</code></summary>
 
 ```bash
-uv run script/analyze_logs.py analyze <output_dir>
+uv run scripts/analyze_logs.py analyze <output_dir>
 ```
 </details>
 
@@ -58,14 +58,14 @@ If your logs are located in a different directory, use the `--from` option to sp
 
 
 ```bash
-python script/analyze_logs.py analyze <output_dir> --from <path_to_build_logs>
+python scripts/analyze_logs.py analyze <output_dir> --from <path_to_build_logs>
 ```
 
 <details>
 <summary>Using <code>uv</code></summary>
 
 ```bash
-uv run script/analyze_logs.py analyze <output_dir> --from <path_to_build_logs>
+uv run scripts/analyze_logs.py analyze <output_dir> --from <path_to_build_logs>
 ```
 </details>
 
@@ -84,7 +84,7 @@ docker run --rm -it \
 ### 2. Download build logs from an Artifactory repository
 
 ```bash
-python script/analyze_logs.py download \
+python scripts/analyze_logs.py download \
   --url <artifactory_url> \
   --repository-path <artifactory_repository_path_to_logs> \
   --username <artifactory_username> \
@@ -96,7 +96,7 @@ python script/analyze_logs.py download \
 <summary>Using <code>uv</code></summary>
 
 ```bash
-uv run script/analyze_logs.py download \
+uv run scripts/analyze_logs.py download \
   --url <artifactory_url> \
   --repository-path <artifactory_repository_path_to_logs> \
   --username <artifactory_username> \
