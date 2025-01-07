@@ -3,6 +3,9 @@
 This project requires Python 3.12.x and manages dependencies using [`pyproject.toml`](pyproject.toml). Below are several methods to set up your environment.
 ## Using System Python with `venv`
 
+<details>
+<summary>Unix/macOS Instructions</summary>
+
 1. Ensure Python 3.12.x is installed:
   ```bash
   python --version
@@ -15,16 +18,38 @@ This project requires Python 3.12.x and manages dependencies using [`pyproject.t
 
 3. Activate the virtual environment:
   ```bash
-  # On Unix/macOS
   source .venv/bin/activate
-  # On Windows
-  .venv\Scripts\activate
   ```
 
 4. Install dependencies:
   ```bash
   pip install .
   ```
+</details>
+
+<details>
+<summary>Windows Instructions</summary>
+
+1. Ensure Python 3.12.x is installed:
+  ```powershell
+  python --version
+  ```
+
+2. Create a virtual environment:
+  ```powershell
+  python -m venv .venv
+  ```
+
+3. Activate the virtual environment:
+  ```powershell
+  .venv\Scripts\activate
+  ```
+
+4. Install dependencies:
+  ```powershell
+  pip install .
+  ```
+</details>
 
 ## Using [uv](https://docs.astral.sh/uv/) (Fast Python Package Installer)
 
@@ -36,10 +61,6 @@ This project requires Python 3.12.x and manages dependencies using [`pyproject.t
 2. Create a virtual environment and install dependencies:
   ```bash
   uv sync
-  # or
-  uv venv
-  source .venv/bin/activate
-  uv pip install .
   ```
 
 ## Using DevContainer
