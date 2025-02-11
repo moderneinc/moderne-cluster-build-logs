@@ -14,7 +14,7 @@ dependencies = [
     "scikit-learn>=1.6.0",
     "torch==2.4.0",
     "tqdm>=4.67.1",
-    "transformers==4.43.3",
+    "transformers==4.48.0",
     "umap-learn",
     "click>=8.1.7",
 ]
