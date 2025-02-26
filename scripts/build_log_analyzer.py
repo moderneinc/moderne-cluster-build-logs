@@ -174,8 +174,15 @@ class BuildLogAnalyzer:
         best_k = df["kmeans_summary"].nunique()
 
         def create_dropdown_options(data, cluster_id):
-            samples = data[data["Cluster label"] == str(cluster_id)]["Extracted logs"]
-            return [str(sample).replace("\n", "<br>") for sample in samples]
+            samples = data[data["Cluster label"] == str(cluster_id)][["Path", "Build", "Extracted logs"]]
+            return [
+                {
+                    "Path": row["Path"],
+                    "Build": row["Build"],
+                    "Extracted logs": str(row["Extracted logs"]).replace("\n", "<br>")
+                }
+                for _, row in samples.iterrows()
+            ]
 
         dropdowns = [
             create_dropdown_options(df, str(cluster_id)) for cluster_id in range(best_k)
@@ -186,11 +193,16 @@ class BuildLogAnalyzer:
             sample_fig = go.Figure(
                 data=[
                     go.Table(
+                        columnwidth=[80, 20, 400],  # Adjust column widths
                         header=dict(
-                            values=["Samples"], fill_color="paleturquoise", align="left"
+                            values=["Path", "Build", "Extracted logs"], fill_color="paleturquoise", align="left"
                         ),
                         cells=dict(
-                            values=[dropdowns[cluster_id]],
+                            values=[
+                                [item["Path"] for item in dropdowns[cluster_id]],
+                                [item["Build"] for item in dropdowns[cluster_id]],
+                                [item["Extracted logs"] for item in dropdowns[cluster_id]],
+                            ],
                             fill_color="lavender",
                             align="left",
                             height=30,
