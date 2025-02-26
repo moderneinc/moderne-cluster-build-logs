@@ -90,9 +90,9 @@ class BuildLogAnalyzer:
 
         best_silhouette_score = -100
         kmax = 20
-        assert kmax < len(
-            df
-        ), f"Number of clusters ({kmax}) must be lower than number of rows ({len(df)})."
+        assert kmax < len(df), (
+            f"Number of clusters ({kmax}) must be lower than number of rows ({len(df)})."
+        )
 
         best_kmeans = None
         for k in range(3, kmax + 1):
@@ -236,7 +236,22 @@ class BuildLogAnalyzer:
         for i, data in enumerate(fig.data):
             data.visible = i == 0
 
-        fig.write_html(self.final_logs_html_path)
+        # Write the HTML with custom post-script to remove user-select-none class
+        remove_user_select_script = """
+            document.addEventListener('DOMContentLoaded', function() {
+            var elements = document.getElementsByClassName('user-select-none');
+            while(elements.length > 0) {
+                elements[0].classList.remove('user-select-none');
+            }
+            });
+        """
+
+        fig.write_html(
+            self.final_logs_html_path,
+            full_html=True,
+            include_plotlyjs="cdn",
+            post_script=remove_user_select_script,
+        )
         click.echo(
             f"Cluster logs saved to {click.format_filename(self.final_logs_html_path)}"
         )
@@ -374,7 +389,7 @@ class BuildLogAnalyzer:
             extracted_log = self._remove_lines_stacktrace_gradle(matches[-1])
             return extracted_log  # return last match
         else:
-            click.echo(f"Gradle log not found for {str(row["Path"])}")
+            click.echo(f"Gradle log not found for {str(row['Path'])}")
             return None
 
     def _remove_lines_stacktrace_gradle(self, log):
