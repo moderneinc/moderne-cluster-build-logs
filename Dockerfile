@@ -11,4 +11,3 @@ COPY uv.lock .
 RUN uv pip install --system -r pyproject.toml
 
 COPY scripts/* .
-COPY templates templates

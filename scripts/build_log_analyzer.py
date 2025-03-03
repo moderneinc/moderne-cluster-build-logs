@@ -11,7 +11,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
-
+import sys
 
 def get_build_type(row):
     if not pd.isna(row["Maven version"]):
@@ -84,7 +84,7 @@ class BuildLogAnalyzer:
 
         # Get embeddings
         embds_summaries = [
-            self.get_embedding(summary) for summary in tqdm(df["Extracted logs"])
+            self.get_embedding(summary) for summary in tqdm(df["Extracted logs"], dynamic_ncols=True, leave=False, file=sys.stdout)
         ]
         df["embds_summaries"] = embds_summaries
 
@@ -150,21 +150,98 @@ class BuildLogAnalyzer:
                 "unknown/other": "cross",
             },
         )
+        # Define the post_script as a triple-quoted JavaScript string
+        post_script = """
+    document.addEventListener('DOMContentLoaded', function() {
+    // Remove the 'user-select-none' class from any elements that have it
+    var elements = document.getElementsByClassName('user-select-none');
+    while (elements.length > 0) {
+        elements[0].classList.remove('user-select-none');
+    }
 
-        with open("templates/scatter_plot.html", "r", encoding="utf-8") as f:
-            scatter_plot_template = f.read()
+    // Variable to hold the pinned tooltip element
+    var pinnedTooltip = null;
+    // Select the Plotly graph element by its class (assumes only one exists)
+    var plot = document.querySelector(".plotly-graph-div");
+    
+    if (plot) {
+        // Listen for Plotly's click event on data points
+        plot.on('plotly_click', function(eventData) {
+            // Remove any existing pinned tooltip
+            if (pinnedTooltip) {
+                pinnedTooltip.remove();
+            }
+            // Create a new tooltip element
+            pinnedTooltip = document.createElement("div");
+            pinnedTooltip.style.position = "absolute";
+            // Mimic Plotly's hover label style
+            pinnedTooltip.style.backgroundColor = "rgba(255, 255, 255, 0.85)";
+            pinnedTooltip.style.border = "1px solid #ccc";
+            pinnedTooltip.style.borderRadius = "3px";
+            pinnedTooltip.style.padding = "4px 8px";
+            pinnedTooltip.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+            pinnedTooltip.style.fontFamily = "inherit";
+            pinnedTooltip.style.fontSize = "12px";
+            pinnedTooltip.style.color = "#2a3f5f";
+            pinnedTooltip.style.userSelect = "text";
+            pinnedTooltip.style.zIndex = 100;
+            
+            // Format the content similar to your hovertemplate:
+            // "Cluster label=19<br>Build=maven<br>Path=%{customdata[0]}<br>Branch=%{customdata[1]}<br>Extracted logs=%{customdata[2]}"
+            var point = eventData.points[0];
+            var content = "";
+            // Assuming point.data.name is like "19, maven"
+            if (point.data && point.data.name) {
+                var parts = point.data.name.split(",");
+                content += "Cluster label=" + parts[0].trim() + "<br>";
+                content += "Build=" + (parts[1] ? parts[1].trim() : "") + "<br>";
+            }
+            if (point.customdata) {
+                content += "Path=" + point.customdata[0] + "<br>";
+                content += "Branch=" + point.customdata[1] + "<br>";
+                content += "Extracted logs=" + point.customdata[2];
+            } else {
+                // Fallback if no customdata
+                content += "X: " + point.x + "<br>Y: " + point.y;
+            }
+            pinnedTooltip.innerHTML = content;
+            
+            // Position the tooltip near the pointer with an offset (to mimic hover positioning)
+            var offset = 10;
+            pinnedTooltip.style.left = (eventData.event.clientX + offset) + "px";
+            pinnedTooltip.style.top  = (eventData.event.clientY + offset) + "px";
+            
+            // Add the tooltip to the document body
+            document.body.appendChild(pinnedTooltip);
+        });
+    }
 
-        with open("templates/tooltip_script.html", "r", encoding="utf-8") as f:
-            tooltip_script_template = f.read()
+    // Remove the tooltip if clicking outside of the tooltip and plot
+    document.addEventListener('click', function(e) {
+        if (pinnedTooltip && !pinnedTooltip.contains(e.target) && !plot.contains(e.target)) {
+            pinnedTooltip.remove();
+            pinnedTooltip = null;
+        }
+    });
 
-        html_content = scatter_plot_template.format(
-            plotly_js="https://cdn.plot.ly/plotly-latest.min.js",
-            plotly_fig=fig.to_html(full_html=False, include_plotlyjs=False),
-            tooltip_script=tooltip_script_template,
+    // Remove the tooltip when pressing the Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && pinnedTooltip) {
+            pinnedTooltip.remove();
+            pinnedTooltip = null;
+        }
+    });
+});
+"""
+
+        # Write the Plotly figure to an HTML file with the custom post_script injected
+        fig.write_html(
+            self.final_cluster_html_path,
+            full_html=True,
+            include_plotlyjs="cdn",
+            post_script=post_script,
         )
 
-        with open(self.final_cluster_html_path, "w", encoding="utf-8") as f:
-            f.write(html_content)
         click.echo(
             f"Scatter plot analysis saved to {click.format_filename(self.final_cluster_html_path)}"
         )
