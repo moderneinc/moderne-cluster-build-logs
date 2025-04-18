@@ -12,7 +12,7 @@ dependencies = [
     "plotly>=5.24.1",
     "requests>=2.32.3",
     "scikit-learn>=1.6.0",
-    "torch==2.4.0",
+    "torch==2.6.0",
     "tqdm>=4.67.1",
     "transformers==4.43.3",
     "umap-learn",
