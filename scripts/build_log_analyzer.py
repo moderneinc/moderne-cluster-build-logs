@@ -89,7 +89,7 @@ class BuildLogAnalyzer:
         df["embds_summaries"] = embds_summaries
 
         best_silhouette_score = -100
-        kmax = 20
+        kmax = 20 if len(df) > 20 else len(df) -1
         assert kmax < len(df), (
             f"Number of clusters ({kmax}) must be lower than number of rows ({len(df)})."
         )
